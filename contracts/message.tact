@@ -32,6 +32,8 @@ message CollectionSetupParams {
     royalty_params: RoyaltyParams;
     mint_limit: Int;
     nft_price: Int;
+    mint_time_limit: Int;
+    is_sbt: Int;
 }
 
 message CollectionMintParams {
@@ -41,10 +43,13 @@ message CollectionMintParams {
     nft_individual_content_url: Cell;
     royalty_params: RoyaltyParams;
     mint_limit: Int;
+    mint_time_limit: Int;
+    is_sbt: Int;
     nft_price: Int;
 }
 
 message(0x5fcc3d14) Transfer {
+    is_sbt: Int?;
     query_id: Int as uint64;
     new_owner: Address;
     response_destination: Address?;
@@ -81,6 +86,8 @@ struct CollectionMasterData {
     master: Address;
     mint_limit: Int;
     price: Int;
+    mint_time_limit: Int;
+    is_sbt: Int;
     index_in_collection: Int;
 }
 

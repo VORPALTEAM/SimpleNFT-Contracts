@@ -16,6 +16,8 @@ contract SimpleNftCollection with Deployable {
     mint_limit: Int = 0;
     price: Int = 0;
     is_setup: Bool;
+    is_sbt: Int = 0;
+    mint_time_limit: Int = 0;
 
     init(
     master_address: Address,
@@ -36,6 +38,8 @@ contract SimpleNftCollection with Deployable {
         self.collection_content = msg.collection_content;
         self.individual_content_url = msg.nft_individual_content_url;
         self.is_setup = true;
+        self.is_sbt = msg.is_sbt;
+        self.mint_time_limit = msg.mint_time_limit;
     }
 
     receive("Mint"){
@@ -43,6 +47,9 @@ contract SimpleNftCollection with Deployable {
         let ctx: Context = context(); // get sender Info
         if (self.mint_limit > 0) {
             require(self.next_item_index <= self.mint_limit, "Mint limit reached");
+        }
+        if (self.mint_time_limit > 0) {
+            require(now() <= self.mint_time_limit, "Mint time limit reached");
         }
         require(ctx.value >= self.price, "NFT creation underpriced");
         let msgValue: Int = ctx.value;
@@ -114,6 +121,8 @@ contract SimpleNftCollection with Deployable {
         return CollectionMasterData{
             master: self.master_address,
             mint_limit: self.mint_limit,
+            mint_time_limit: self.mint_time_limit,
+            is_sbt: self.is_sbt,
             price: self.price,
             index_in_collection: self.collection_index
         }

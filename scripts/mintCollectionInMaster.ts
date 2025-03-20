@@ -44,7 +44,9 @@ export async function run(provider: NetworkProvider, args: string[]) {
             collection_content: content, 
             nft_individual_content_url: nftContent,
             royalty_params: myRoyaltyParams,
-            mint_limit: 0n,
+            mint_limit: 3n,
+            mint_time_limit: 0n,
+            is_sbt: 0n,
             nft_price: toNano("0.5")
         }
     );
