@@ -37,8 +37,11 @@ contract SimpleNftMaster with Deployable {
         let ctx: Context = context();
         require(ctx.value >= self.collection_creation_price, "Creation underpriced");
         require(msg.nft_price >= minTokenPrice, "Token price too low");
+        if (msg.mint_time_limit > 0) {
+            require(msg.mint_time_limit > now(), "Collection must have time to mint");
+        }
         let collection_init: StateInit = self.getCollectionItemInit(self.next_collection_index);
-
+        
         send(SendParameters{
                 to: contractAddress(collection_init), 
                 value: masterMinStorage, 
