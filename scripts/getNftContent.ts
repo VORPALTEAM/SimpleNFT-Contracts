@@ -21,7 +21,7 @@ function hexToString(hex: string): string {
 export async function run(provider: NetworkProvider, args: string[]) {
     const ui = provider.ui();
 
-    const address = Address.parse(args.length > 0 ? args[0] : await ui.input('SimpleNft collection address'));
+    const address = Address.parse(args.length > 0 ? args[0] : await ui.input('Collection address'));
 
     if (!(await provider.isContractDeployed(address))) {
         ui.write(`Error: Contract at address ${address} is not deployed!`);
@@ -29,10 +29,15 @@ export async function run(provider: NetworkProvider, args: string[]) {
     }
 
     const simpleNftCollection = provider.open(SimpleNftCollection.fromAddress(address));
+    try {
 
+        const sampleNft = await simpleNftCollection.getGetSampleNftContent();
+        console.log("Decrypted sample: ", hexToString(String(sampleNft)));
+    } catch (e) {
+       console.log("Collection with no this method")
+    }
     const dataInfo = await simpleNftCollection.getGetCollectionData();
-    const sampleNft = await simpleNftCollection.getGetSampleNftContent();
-    let nftAddress = await simpleNftCollection.getGetNftAddressByIndex(0n);
+    let nftAddress = await simpleNftCollection.getGetNftAddressByIndex(1n);
     console.log("Found address: ", nftAddress);
 
     /* await simpleNftCollection.send(
@@ -43,7 +48,6 @@ export async function run(provider: NetworkProvider, args: string[]) {
         "Mint"
     ); */
     console.log("Decrypted collection: ", hexToString(String(dataInfo.collection_content)));
-    console.log("Decrypted sample: ", hexToString(String(sampleNft)));
     if (nftAddress) {
         const simpleNftITem = provider.open(NftItem.fromAddress(nftAddress));
         const nftData = await simpleNftITem.getGetNftData();
@@ -59,5 +63,5 @@ export async function run(provider: NetworkProvider, args: string[]) {
     console.log("Changes: ", dataInfo, dataInfoAfter)
 
     ui.clearActionPrompt();
-    ui.write('Counter increased successfully!');
+    ui.write('Completed!');
 }
