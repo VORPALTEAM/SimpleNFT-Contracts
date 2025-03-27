@@ -68,7 +68,6 @@ contract SimpleNftCollection with Deployable {
         require(self.next_item_index >= 0, "non-sequential NFTs");
         let nft_init: StateInit = self.getNftItemInit(self.next_item_index);
         let feeValue = msgValue - nftBalanceConst;
-
         send(SendParameters{
                 to: contractAddress(nft_init), 
                 value: nftBalanceConst, 
@@ -89,13 +88,16 @@ contract SimpleNftCollection with Deployable {
         send(SendParameters{
             to: self.master_address,
             value: (feeValue * 3) / 100,
-            bounce: false
+            bounce: false,
+            mode: SendIgnoreErrors 
         });
 
+        // let balanceRemaining: Int = myBalance();
         send(SendParameters{
             to: self.owner_address!!,
-            value: (feeValue * 97) / 100,
-            bounce: false
+            value: (feeValue * 97) / 100, // (feeValue * 97) / 100,
+            bounce: false,
+            mode: SendIgnoreErrors 
         }); 
         dump(self.next_item_index); // Reference at: https://tact-by-example.org/03-emit
         self.next_item_index = self.next_item_index + 1;

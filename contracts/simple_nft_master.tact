@@ -79,6 +79,8 @@ contract SimpleNftMaster with Deployable {
         self.owner = msg.new_owner;
     }
 
+    receive() {}
+
     get fun getCollectionItemInit(item_index: Int): StateInit {
         return initOf SimpleNftCollection(myAddress(), item_index);
     }
