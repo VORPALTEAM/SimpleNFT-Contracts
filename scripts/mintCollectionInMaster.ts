@@ -8,8 +8,8 @@ export async function run(provider: NetworkProvider, args: string[]) {
     const ui = provider.ui();
     const owner = Address.parse("EQASOROUZS1xSjdKIZXzoR59-LRqs48Kc6ZXjTYNKAdQzu7r");
     const OFFCHAIN_CONTENT_PREFIX = 0x01;
-    const string_first = "https://gateway.pinata.cloud/ipfs/Qmdoi3XJCzPT7TX6p9oFoAuKpjyqDTiQZpspVHU5wEjGU1";
-    const string_content = "https://gateway.pinata.cloud/ipfs/QmRZfjvx9A1eZXUUE56Sr2iYrmXcr9jyMmvYWTzu9y63WZ";
+    const string_first = "https://gateway.pinata.cloud/ipfs/QmXpAW9kqXApy6reNfUHXKBuDwVCCq8UG3tkokCgnKSxMd";
+    const string_content = "https://gateway.pinata.cloud/ipfs/QmZYpbA6kKXWk85AEEXu8VGgLVE2L166mJzcuFYBokQpXZ";
     const content = beginCell().storeInt(OFFCHAIN_CONTENT_PREFIX, 8).storeBuffer(Buffer.from(string_first)).endCell();
     const nftContent = beginCell().storeInt(OFFCHAIN_CONTENT_PREFIX, 8).storeBuffer(Buffer.from(string_content)).endCell();
     const address = Address.parse(args.length > 0 ? args[0] : await ui.input('SimpleNftMaster address'));
@@ -44,7 +44,7 @@ export async function run(provider: NetworkProvider, args: string[]) {
             collection_content: content, 
             nft_individual_content_url: nftContent,
             royalty_params: myRoyaltyParams,
-            mint_limit: 3n,
+            mint_limit: 100n,
             mint_time_limit: 1900000000n,
             is_sbt: 1n,
             nft_price: toNano("0.5")

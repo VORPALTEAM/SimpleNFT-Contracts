@@ -26,7 +26,7 @@ contract NftItem {
             self.is_initialized = true;
             self.owner = msg.new_owner;
             self.individual_content = msg.custom_payload;
-            self.is_sbt = msg.is_sbt;
+            // self.is_sbt = msg.is_sbt;
             send(SendParameters{
                 to: msg.response_destination!!,
                 value: msgValue,
@@ -35,14 +35,13 @@ contract NftItem {
             });
         } else {
             require(ctx.sender == self.owner!!, "not owner");
-            require(self.is_sbt == 0, "Sbt cannot be transferred");
+            // require(self.is_sbt == 0, "Sbt cannot be transferred");
             self.owner = msg.new_owner;  // change current owner to the new_owner
             if (msg.forward_amount > 0) {
                 send(SendParameters{
                     to: msg.new_owner,
                     value: msg.forward_amount,
-                    mode:  SendPayGasSeparately, 
-                    bounce: true,
+                    mode: SendIgnoreErrors + SendRemainingValue, 
                     body: OwnershipAssigned{
                         query_id: msg.query_id,
                         prev_owner: ctx.sender,
@@ -56,8 +55,7 @@ contract NftItem {
                 send(SendParameters{ 
                     to: msg.response_destination!!,
                     value: msgValue - msg.forward_amount,
-                    mode: SendPayGasSeparately,
-                    bounce: true,
+                    mode: SendIgnoreErrors + SendRemainingValue,
                     body: Excesses { query_id: msg.query_id }.toCell()
                 });
             } 

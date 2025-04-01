@@ -49,7 +49,6 @@ message CollectionMintParams {
 }
 
 message(0x5fcc3d14) Transfer {
-    is_sbt: Int?;
     query_id: Int as uint64;
     new_owner: Address;
     response_destination: Address?;

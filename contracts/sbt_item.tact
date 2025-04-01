@@ -1,127 +1,45 @@
-import "./structs";
-import "./messages";
+import "@stdlib/deploy";
+import "./message.tact";
 
 contract SbtItem {
-
-    const minTonsForStorage: Int = ton("0.03");
-    const gasConsumption: Int = ton("0.03");
-    
-    item_index: Int as uint64;
     collection_address: Address;
-    owner: Address? = null;
-    content: Cell? = null;
-    authority_address: Address? = null;
-    revoked_at: Int as uint64 = 1;
-    is_initialized: Bool = false;
+    item_index: Int; 
+    is_initialized: Bool;
 
-    init(collection_address: Address, item_index: Int) {
-        self.item_index = item_index;
+    owner: Address?;
+    individual_content: Cell?;
+    is_sbt: Int = 1;
+
+    init(collection_address: Address, item_index: Int){
+        require(sender() == collection_address, "not from collection");
         self.collection_address = collection_address;
+        self.item_index = item_index;
+        self.is_initialized = false;
     }
 
-    receive(msg: DeployItem) {
-        require(!self.is_initialized, "Already Initiated");
-        require(sender() == self.collection_address, "Invalid Sender");
-        self.owner = msg.owner_address;
-        self.content = msg.content;
-        self.authority_address = msg.authority_address;
-        self.revoked_at = 0;
+    receive(msg: Transfer){
+        let ctx: Context = context(); // Reference: https://docs.tact-lang.org/language/ref/common#context
+        let msgValue: Int = self.msgValue(ctx.value);
+        require(self.is_initialized == false, "Sbt transfer for init only");
+        require(ctx.sender == self.collection_address, "initialized tx need from collection");
         self.is_initialized = true;
-    }
-
-    receive(msg: ProveOwnership) {
-        require(self.is_initialized, "Not Initiated");
-        require(self.owner == sender(), "Invalid Sender");
-        let content: Cell? = null;
-        if (msg.with_content) {
-            content = self.content;
-        }
-        send(SendParameters{
-            to: msg.dest,
-            value: 0,
-            mode: SendRemainingValue,
-            body: OwnershipProof {
-                query_id: msg.query_id, 
-                item_id: self.item_index, 
-                owner: self.owner!!, 
-                data: msg.forward_payload, 
-                revoked_at: self.revoked_at, 
-                content: content
-            }.toCell()
-        });
-
-        self.exit_without_saving();
-    }
-
-    receive(msg: RequestOwner) {
-        require(self.is_initialized, "Not Initiated");
-        let content: Cell? = null;
-        if (msg.with_content) {
-            content = self.content;
-        }
-        send(SendParameters{
-            to: msg.dest,
-            value: 0,
-            mode: SendRemainingValue,
-            body: OwnerInfo {
-                query_id: msg.query_id, 
-                item_id: self.item_index, 
-                initiator: sender(),
-                owner: self.owner!!, 
-                data: msg.forward_payload, 
-                revoked_at: self.revoked_at, 
-                content: content
-            }.toCell()
-        });
-
-        self.exit_without_saving();
-    }
-
-    receive(msg: Destroy) {
-        require(self.is_initialized, "Not Initiated");
-        require(self.owner == sender(), "Invalid Sender");
-        send(SendParameters{
-            to: self.owner!!,
-            value: 0,
-            mode: SendRemainingBalance,
-            body: Excesses{query_id: msg.query_id}.toCell()
-        });
-        self.owner = null;
-        self.authority_address = null;
-    }
-
-    receive(msg: Revoke) {
-        require(self.is_initialized, "Not Initiated");
-        require(self.authority_address == sender(), "Invalid Sender");
-        require(self.revoked_at == 0, "Already revoked");
-        self.revoked_at = now();
-        send(SendParameters{
-            to: self.authority_address!!,
-            value: 0,
-            mode: SendRemainingValue,
-            body: Excesses{query_id: msg.query_id}.toCell()
-        });
-    }
-
-    receive(msg: TakeExcess) {
-        require(self.is_initialized, "Not Initiated");
-        require(self.owner == sender(), "Invalid Sender");
-        nativeReserve(self.minTonsForStorage, 2);
-        send(SendParameters{
-            to: self.owner!!,
-            value: 0,
-            mode: SendRemainingBalance,
-            body: Excesses{query_id: msg.query_id}.toCell()
-        });
-        self.exit_without_saving();
+            self.owner = msg.new_owner;
+            self.individual_content = msg.custom_payload;
+            // self.is_sbt = msg.is_sbt;
+            send(SendParameters{
+                to: msg.response_destination!!,
+                value: msgValue,
+                mode: SendPayGasSeparately,
+                body: Excesses { query_id: msg.query_id }.toCell()
+            });
     }
     
-    receive(msg: GetStaticData) {
-        require(self.is_initialized, "Not Initiated");
+    receive(msg: GetStaticData){ 
+        let ctx: Context = context();
         send(SendParameters {
-            to: sender(),
+            to: ctx.sender,
             value: 0,
-            mode: SendRemainingValue,
+            mode: 64,  // (return msg amount except gas fees) 
             bounce: true,
             body: ReportStaticData{
                 query_id: msg.query_id,
@@ -129,49 +47,26 @@ contract SbtItem {
                 collection: self.collection_address
             }.toCell()
         });
-        self.exit_without_saving();
     }
 
-    bounced(msg: bounced<OwnershipProof>) {
-        send(SendParameters{
-            to: self.owner!!,
-            value: 0,
-            mode: SendRemainingValue,
-            body: OwnershipProofBounced{query_id: msg.query_id}.toCell()
-        });
-        self.exit_without_saving();
-    }
-
-    inline fun exit_without_saving() {
-        commit();
-        throw(0);
+    fun msgValue(value: Int): Int {
+        let tonBalanceBeforeMsg: Int = myBalance() - value;
+        let storageFee: Int = minTonsForStorage - min(tonBalanceBeforeMsg, minTonsForStorage);
+        return value - (storageFee + gasConsumption);
     }
 
     // --------- Get Function  --------- //
     get fun get_nft_data(): GetNftData {
         let b: StringBuilder = beginString();
-        let collectionData: String = "";
-        if (self.content != null) {
-            collectionData = (self.content!!).asSlice().asString();
-        }
+        let collectionData: String = (self.individual_content!!).asSlice().asString();
         b.append(collectionData);
-        b.append(self.item_index.toString());
-        b.append(".json");
 
         return GetNftData {
             is_initialized: self.is_initialized, 
             index: self.item_index, 
             collection_address: self.collection_address, 
-            owner_address: self.owner,
+            owner_address: self.owner!!,
             individual_content: b.toCell()
         };
     }
-
-    get fun get_authority_address(): Address? {
-        return self.authority_address;
-    }
-    get fun get_revoked_time(): Int {
-        return self.revoked_at;
-    }
 }
-

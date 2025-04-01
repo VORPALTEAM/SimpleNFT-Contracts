@@ -1,6 +1,7 @@
 import "@stdlib/deploy";
 import "./message.tact";
 import "./nft_item.tact";
+import "./sbt_item.tact";
 
 const nftBalanceConst: Int = ton("0.1");
 
@@ -148,7 +149,12 @@ contract SimpleNftCollection with Deployable {
     }
 
     get fun getNftItemInit(item_index: Int): StateInit {
-        return initOf NftItem(myAddress(), item_index);
+        // return initOf NftItem(myAddress(), item_index);
+        if (self.is_sbt == 0) {
+            return initOf NftItem(myAddress(), item_index);
+        } else {
+            return initOf SbtItem(myAddress(), item_index);
+        }
     }
     
     get fun get_nft_content(index: Int, individual_content: Cell): Cell { 
