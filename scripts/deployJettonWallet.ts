@@ -1,5 +1,5 @@
 import { Address, toNano } from '@ton/core';
-import { JettonWallet } from '../wrappers/JettonWallet';
+import { EqJettonWallet } from '../wrappers/JettonMaster';
 import { NetworkProvider } from '@ton/blueprint';
 
 export async function run(provider: NetworkProvider, args: string[]) {

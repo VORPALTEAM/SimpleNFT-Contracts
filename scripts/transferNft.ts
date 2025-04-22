@@ -29,7 +29,7 @@ export async function run(provider: NetworkProvider, args: string[]) {
         return;
     }
 
-    const simpleNftITem = provider.open(NftItem.fromAddress(address));
+    const simpleNftITem = provder.open(NftItem.fromAddress(address));
     const nftData = await simpleNftITem.getGetNftData();
     console.log("Individual data: ", nftData);
     console.log("Decrypted nft: ", hexToString(String(nftData.individual_content)));
@@ -52,3 +52,4 @@ export async function run(provider: NetworkProvider, args: string[]) {
     ui.clearActionPrompt();
     ui.write('Completed!');
 }
+i
