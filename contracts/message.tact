@@ -34,6 +34,37 @@ message CollectionSetupParams {
     nft_price: Int;
     mint_time_limit: Int;
     is_sbt: Int;
+    enable_whitelist: Bool;
+    enable_blacklist: Bool;
+}
+
+message MassUpdateWhiteList {
+    users: map<Int as uint16, Address>;
+    amount: map<Int as uint16, Int>;
+    whitelist: Bool;
+}
+
+message MassUpdateBlackList {
+    users: map<Int as uint16, Address>;
+    blacklist: Bool;
+}
+
+message UpdateWhiteList {
+    user: Address;
+    whitelist: Bool;
+}
+
+message UpdateBlackList {
+    user: Address;
+    blacklist: Bool;
+}
+
+message AddToBlackList {
+    add: Bool;
+}
+
+message AddToWhiteList {
+    add: Bool;
 }
 
 message CollectionMintParams {
@@ -46,6 +77,8 @@ message CollectionMintParams {
     mint_time_limit: Int;
     is_sbt: Int;
     nft_price: Int;
+    enable_whitelist: Bool;
+    enable_blacklist: Bool;
 }
 
 message(0x5fcc3d14) Transfer {
