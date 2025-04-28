@@ -8,12 +8,18 @@ message LogEventMintRecord {
 message(0x693d3950) GetRoyaltyParams {
     query_id: Int as uint64;
 }
+
+message GetProfile {
+    query_id: Int as uint64;
+}
+
 message(0xa8cb00ad) ReportRoyaltyParams {
     query_id: Int as uint64;
     numerator: Int as uint16;
     denominator: Int as uint16;
     destination: Address;
 }
+
 struct CollectionData {
     next_item_index: Int;
     collection_content: Cell;
@@ -79,6 +85,13 @@ message CollectionMintParams {
     nft_price: Int;
     enable_whitelist: Bool;
     enable_blacklist: Bool;
+}
+
+message ProfileData {
+    query_id: Int as uint64;
+    user: Address;
+    is_whitelisted: Bool;
+    is_blacklisted: Bool;
 }
 
 message(0x5fcc3d14) Transfer {

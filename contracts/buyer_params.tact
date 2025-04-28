@@ -60,4 +60,20 @@ contract BuyerProfileParams {
         self.is_whitelisted = false;
         self.is_blacklisted = true;
     }
+
+    receive(msg: GetProfile) {   
+        let ctx: Context = context(); // get sender Info
+        send(SendParameters{
+            to: ctx.sender,
+            value: 0,
+            mode: 64, 
+            bounce: false,
+            body: ProfileData {
+                query_id: msg.query_id,
+                user: self.buyer_address,
+                is_whitelisted: self.is_whitelisted,
+                is_blacklisted: self.is_blacklisted
+            }.toCell()
+        });        
+    }
 }

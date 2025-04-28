@@ -58,6 +58,12 @@ contract SimpleNftCollection with Deployable {
             require(now() <= self.mint_time_limit, "Mint time limit reached");
         }
         require(ctx.value >= self.price, "NFT creation underpriced");
+        let profile_address = self.create_profile(sender());
+        let profile_contract = getContract(profile_address);
+        if (self.enable_whitelist) {
+            let is_whitelisted = profile_address.is_whitelisted();
+            require(is_whitelisted, "Not in whitelist");
+        }
         let msgValue: Int = ctx.value;
         let tonBalanceBeforeMsg: Int = myBalance() - msgValue;
         let storageFee: Int = minTonsForStorage - min(tonBalanceBeforeMsg, minTonsForStorage);
@@ -110,6 +116,20 @@ contract SimpleNftCollection with Deployable {
     }
 
     // -------------- Profile operations ----------------------- //
+    fun get_buyer_profile (address: Address): ProfileData {
+      let profile = self.get_user_profile_init(address);
+      send(SendParameters{
+        to: contractAddress(profile),
+        body: GetProfile {
+            query_id: 0
+        },
+        value: ton("0.05"),
+        mode: SendIgnoreErrors + SendRemainingValue, 
+        code: profile.code,
+        data: profile.data
+      }); 
+      return contractAddress(profile);
+    }
 
     fun update_white_list(address: Address, add: Bool) {
       let profile = self.get_user_profile_init(address);
