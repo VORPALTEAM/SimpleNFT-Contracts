@@ -47,7 +47,9 @@ export async function run(provider: NetworkProvider, args: string[]) {
             mint_limit: 100n,
             mint_time_limit: 1900000000n,
             is_sbt: 1n,
-            nft_price: toNano("0.5")
+            nft_price: toNano("0.5"),
+            enable_blacklist: true,
+            enable_whitelist: false
         }
     );
     if (!nextAddress) {
