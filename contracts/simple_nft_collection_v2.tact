@@ -2,10 +2,11 @@ import "@stdlib/deploy";
 import "./message.tact";
 import "./nft_item.tact";
 import "./sbt_item.tact";
+import "./buyer_params.tact";
 
 const nftBalanceConst: Int = ton("0.1");
 
-contract SimpleNftCollection with Deployable {
+contract SimpleNftCollectionV2 with Deployable {
 
     next_item_index: Int as uint32 = 0;
     collection_index: Int as uint32 = 0;
@@ -19,6 +20,8 @@ contract SimpleNftCollection with Deployable {
     is_setup: Bool;
     is_sbt: Int = 0;
     mint_time_limit: Int = 0;
+    enable_blacklist: Bool = false;
+    enable_whitelist: Bool = false;
 
     init(
     master_address: Address,
@@ -41,6 +44,8 @@ contract SimpleNftCollection with Deployable {
         self.is_setup = true;
         self.is_sbt = msg.is_sbt;
         self.mint_time_limit = msg.mint_time_limit;
+        self.enable_whitelist = msg.enable_whitelist;
+        self.enable_blacklist = msg.enable_blacklist;
     }
 
     receive("Mint"){
@@ -53,19 +58,34 @@ contract SimpleNftCollection with Deployable {
             require(now() <= self.mint_time_limit, "Mint time limit reached");
         }
         require(ctx.value >= self.price, "NFT creation underpriced");
-        let msgValue: Int = ctx.value;
+        let profile_address = self.get_buyer_profile(sender(), ctx.value);
+        
+    }
+
+    // ===== Mint on profile callback ==== //
+    receive(msg: ProfileData) {
+        let ctx = context();
+        let profileStateInit = self.get_user_profile_init(msg.user);
+        require(sender() == contractAddress(profileStateInit), "Not from our profile");
+        if (self.enable_whitelist) { 
+            require(msg.is_whitelisted == true, "Not whitelisted");
+        }
+        if (self.enable_blacklist) {
+            require(msg.is_blacklisted == false, "Blacklisted");            
+        }
+         let msgValue: Int = ctx.value;
         let tonBalanceBeforeMsg: Int = myBalance() - msgValue;
         let storageFee: Int = minTonsForStorage - min(tonBalanceBeforeMsg, minTonsForStorage);
         msgValue = msgValue - (storageFee + gasConsumption);
         
-        self.mint(ctx.sender, msgValue);
+        self.mint(msg.user, msgValue);
 
         emit(LogEventMintRecord{ minter: sender(), item_id: self.next_item_index, generate_number: nativeRandom() }.toCell());
     }
 
     // ===== Private Methods ===== //
 
-        fun mint(sender: Address, msgValue: Int) {
+    fun mint(sender: Address, msgValue: Int) {
         require(self.next_item_index >= 0, "non-sequential NFTs");
         let nft_init: StateInit = self.getNftItemInit(self.next_item_index);
         let feeValue = msgValue - nftBalanceConst;
@@ -104,6 +124,51 @@ contract SimpleNftCollection with Deployable {
         self.next_item_index = self.next_item_index + 1;
     }
 
+    // -------------- Profile operations ----------------------- //
+    fun get_buyer_profile (address: Address, value: Int): Address {
+      let profile = self.get_user_profile_init(address);
+      send(SendParameters{
+        to: contractAddress(profile),
+        body: GetProfile {
+            query_id: 0
+        }.toCell(),
+        value: value,
+        mode: SendIgnoreErrors + SendRemainingValue, 
+        code: profile.code,
+        data: profile.data
+      }); 
+      return contractAddress(profile);
+    }
+
+    fun update_white_list(address: Address, add: Bool) {
+      let profile = self.get_user_profile_init(address);
+      send(SendParameters{
+        to: contractAddress(profile),
+        body: AddToWhiteList {
+            add: add
+        }.toCell(),
+        value: ton("0.05"),
+        mode: SendIgnoreErrors + SendRemainingValue, 
+        code: profile.code,
+        data: profile.data
+      });  
+    }
+
+    fun update_black_list(address: Address, add: Bool) {
+      let profile = self.get_user_profile_init(address);
+      send(SendParameters{
+        to: contractAddress(profile),
+        body: AddToBlackList {
+            add: add
+        }.toCell(),
+        value: ton("0.05"),
+        mode: SendIgnoreErrors + SendRemainingValue, 
+        code: profile.code,
+        data: profile.data
+      }); 
+    // ... rest of your implementation
+    }
+
     receive(msg: GetRoyaltyParams) {   
         let ctx: Context = context(); // get sender Info
         send(SendParameters{
@@ -118,6 +183,16 @@ contract SimpleNftCollection with Deployable {
                 destination: (self.royalty_params!!).destination
             }.toCell()
         });        
+    }
+
+    receive(msg: UpdateWhiteList) {
+        require(sender() == self.owner_address, "Not a collection owner");
+        self.update_white_list(msg.user, msg.whitelist);
+    }
+
+    receive(msg: UpdateBlackList) {
+        require(sender() == self.owner_address, "Not a collection owner");
+        self.update_white_list(msg.user, msg.blacklist);
     }
 
     get fun get_master_data(): CollectionMasterData {
@@ -156,6 +231,10 @@ contract SimpleNftCollection with Deployable {
             return initOf SbtItem(myAddress(), item_index);
         }
     }
+
+    get fun get_user_profile_init(address: Address): StateInit {
+        return initOf BuyerProfileParams(myAddress(), address);
+    }
     
     get fun get_nft_content(index: Int, individual_content: Cell): Cell { 
         let b: StringBuilder = beginString();
@@ -175,3 +254,4 @@ contract SimpleNftCollection with Deployable {
         return self.royalty_params!!;
     }
 }
+

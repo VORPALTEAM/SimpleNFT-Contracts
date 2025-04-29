@@ -65,7 +65,7 @@ contract BuyerProfileParams {
         let ctx: Context = context(); // get sender Info
         send(SendParameters{
             to: ctx.sender,
-            value: 0,
+            value: ctx.value,
             mode: 64, 
             bounce: false,
             body: ProfileData {

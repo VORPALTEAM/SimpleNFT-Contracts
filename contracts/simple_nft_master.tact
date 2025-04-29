@@ -1,5 +1,5 @@
 import "@stdlib/deploy";
-import "./simple_nft_collection";
+import "./simple_nft_collection_v2";
 
 message TransferOwner {
     new_owner: Address;
@@ -84,7 +84,7 @@ contract SimpleNftMaster with Deployable {
     receive() {}
 
     get fun getCollectionItemInit(item_index: Int): StateInit {
-        return initOf SimpleNftCollection(myAddress(), item_index);
+        return initOf SimpleNftCollectionV2(myAddress(), item_index);
     }
 
     get fun get_master_data (): MasterData {
