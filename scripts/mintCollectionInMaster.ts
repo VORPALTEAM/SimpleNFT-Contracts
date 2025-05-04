@@ -3,6 +3,8 @@ import { SimpleNftCollection } from '../wrappers/SimpleNftCollection';
 import { NetworkProvider, sleep } from '@ton/blueprint';
 import { NftItem } from '../wrappers/SimpleNftItem';
 import { SimpleNftMaster } from '../wrappers/SimpleNftMaster';
+import { SimpleNftCollectionV2 } from '../build/SimpleNftMaster/tact_SimpleNftCollectionV2';
+import { waitForDeploy } from '../utils/deploy';
 
 export async function run(provider: NetworkProvider, args: string[]) {
     const ui = provider.ui();
@@ -55,12 +57,21 @@ export async function run(provider: NetworkProvider, args: string[]) {
     if (!nextAddress) {
         return;
     }
-    
-    const simpleNftCollection = provider.open(SimpleNftCollection.fromAddress(nextAddress));
-    if (!(await provider.isContractDeployed(nextAddress))) {
-        ui.write(`Error: Collection is not deployed!`);
+
+    const deployResult = await waitForDeploy (provider, nextAddress);
+
+    if (!deployResult) {
+        console.log("Not deployed per timeout!");
         return;
     }
+    
+    const simpleNftCollection = provider.open(SimpleNftCollectionV2.fromAddress(nextAddress));
+    const awaitingResult = await provider.isContractDeployed(nextAddress);
+    console.log("Deploy detected:", awaitingResult);
+    /* if (!(await provider.isContractDeployed(nextAddress))) {
+        ui.write(`Error: Collection is not deployed!`);
+        return;
+    } */
     const dataInfo = await simpleNftCollection.getGetCollectionData();
     let nftAddress = await simpleNftCollection.getGetNftAddressByIndex(2n);
 
@@ -75,8 +86,9 @@ export async function run(provider: NetworkProvider, args: string[]) {
     let dataInfoAfter = await simpleNftCollection.getGetCollectionData();
     let attempt = 1;
 
-    console.log("Changes: ", dataInfo, dataInfoAfter)
-
+    console.log("Changes: ", dataInfo, dataInfoAfter);
+    const senderProfile = await simpleNftCollection.getGetBuyerProfileAddress(owner);
+    console.log("Profile addres will be: ", senderProfile);
     ui.clearActionPrompt();
     ui.write('Counter increased successfully!');
 }

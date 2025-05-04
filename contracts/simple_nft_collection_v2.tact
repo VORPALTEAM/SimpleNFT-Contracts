@@ -57,13 +57,24 @@ contract SimpleNftCollectionV2 with Deployable {
         if (self.mint_time_limit > 0) {
             require(now() <= self.mint_time_limit, "Mint time limit reached");
         }
-        require(ctx.value >= self.price, "NFT creation underpriced");
-        let profile_address = self.get_buyer_profile(sender(), ctx.value);
+        // require(ctx.value >= self.price, "NFT creation underpriced");
+        let profile = self.get_user_profile_init(sender());
+        send(SendParameters{
+              to: contractAddress(profile),
+               body: GetProfile {
+                   query_id: 0
+               }.toCell(),
+               value: ton("0.3"),
+               mode: SendIgnoreErrors + SendRemainingValue, 
+               code: profile.code,
+               data: profile.data
+           }); 
         
     }
 
     // ===== Mint on profile callback ==== //
     receive(msg: ProfileData) {
+        /*
         let ctx = context();
         let profileStateInit = self.get_user_profile_init(msg.user);
         require(sender() == contractAddress(profileStateInit), "Not from our profile");
@@ -81,6 +92,7 @@ contract SimpleNftCollectionV2 with Deployable {
         self.mint(msg.user, msgValue);
 
         emit(LogEventMintRecord{ minter: sender(), item_id: self.next_item_index, generate_number: nativeRandom() }.toCell());
+        */
     }
 
     // ===== Private Methods ===== //
@@ -125,18 +137,8 @@ contract SimpleNftCollectionV2 with Deployable {
     }
 
     // -------------- Profile operations ----------------------- //
-    fun get_buyer_profile (address: Address, value: Int): Address {
+    get fun get_buyer_profile_address (address: Address): Address {
       let profile = self.get_user_profile_init(address);
-      send(SendParameters{
-        to: contractAddress(profile),
-        body: GetProfile {
-            query_id: 0
-        }.toCell(),
-        value: value,
-        mode: SendIgnoreErrors + SendRemainingValue, 
-        code: profile.code,
-        data: profile.data
-      }); 
       return contractAddress(profile);
     }
 
@@ -162,7 +164,7 @@ contract SimpleNftCollectionV2 with Deployable {
             add: add
         }.toCell(),
         value: ton("0.05"),
-        mode: SendIgnoreErrors + SendRemainingValue, 
+        mode: SendIgnoreErrors, //  + SendRemainingValue
         code: profile.code,
         data: profile.data
       }); 
