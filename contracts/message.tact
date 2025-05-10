@@ -136,5 +136,32 @@ struct CollectionMasterData {
     index_in_collection: Int;
 }
 
+// ToDos test
+message NewTodo{
+    task: String;
+}
+
+message SetupCollectionData{
+    collection_owner: Address?;
+    collection_item_price: Int?;
+}
+
+message CompleteTodo{
+    seqno: Int as uint256;
+}
+
+message InternalComplete{
+    excess: Address;
+}
+
+message NewTodoResponse{
+    seqno: Int as uint256;
+}
+
+message InternalAdd{
+    amount: Int as coins;
+    origin: Address;
+}
+
 const minTonsForStorage: Int = ton("0.03");
 const gasConsumption: Int = ton("0.03");

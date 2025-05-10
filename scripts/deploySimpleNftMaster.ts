@@ -1,7 +1,6 @@
 import { Address, beginCell, toNano } from '@ton/core';
 import { SimpleNftMaster } from '../wrappers/SimpleNftMaster';
 import { NetworkProvider } from '@ton/blueprint';
-import { SimpleNftCollection } from '../wrappers/SimpleNftCollection';
 
 export async function run(provider: NetworkProvider) {
     const ui = provider.ui();

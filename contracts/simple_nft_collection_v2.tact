@@ -3,6 +3,7 @@ import "./message.tact";
 import "./nft_item.tact";
 import "./sbt_item.tact";
 import "./buyer_params.tact";
+import "./buyer_profile.tact";
 
 const nftBalanceConst: Int = ton("0.1");
 
@@ -22,6 +23,7 @@ contract SimpleNftCollectionV2 with Deployable {
     mint_time_limit: Int = 0;
     enable_blacklist: Bool = false;
     enable_whitelist: Bool = false;
+    numTodos: Int as uint256 = 0;
 
     init(
     master_address: Address,
@@ -47,8 +49,57 @@ contract SimpleNftCollectionV2 with Deployable {
         self.enable_whitelist = msg.enable_whitelist;
         self.enable_blacklist = msg.enable_blacklist;
     }
+    // Profile
+    get fun buyer_profile_address(owner: Address): Address{
+        return contractAddress(initOf BuyerProfile(myAddress(), owner));
+    }
 
-    receive("Mint"){
+    get fun numTodos(): Int {
+        return self.numTodos;
+    }
+
+    receive("RequestWhitelist") {
+         let init: StateInit = initOf BuyerProfile(myAddress(), sender());
+         send(SendParameters{
+            to: contractAddress(init),
+            body: SetupCollectionData{
+                collection_owner: self.owner_address,
+                collection_item_price: self.price
+            }.toCell(),
+            value: ton("0.2"),
+            mode: SendIgnoreErrors,
+            code: init.code,
+            data: init.data
+        });       
+    }
+
+    receive("Mint") {
+        require(self.is_setup == true, "Collection settings is not setup");
+                let ctx: Context = context(); // get sender Info
+        if (self.mint_limit > 0) {
+            require(self.next_item_index <= self.mint_limit, "Mint limit reached");
+        }
+        if (self.mint_time_limit > 0) {
+            require(now() <= self.mint_time_limit, "Mint time limit reached");
+        }
+        require(ctx.value >= self.price, "NFT creation underpriced");
+        // Init user profile creation
+        let init: StateInit = initOf BuyerProfile(myAddress(), sender());
+
+        /* send(SendParameters{
+            to: contractAddress(init),
+            body: InternalSetTask{task: "Task from mint"}.toCell(),
+            value: ton("0.2"),
+            mode: SendIgnoreErrors,
+            code: init.code,
+            data: init.data
+        }); */
+
+        self.reply(NewTodoResponse{seqno: self.numTodos}.toCell());
+    }
+
+
+    /* receive("Mint"){
         require(self.is_setup == true, "Collection settings is not setup");
         let ctx: Context = context(); // get sender Info
         if (self.mint_limit > 0) {
@@ -70,7 +121,7 @@ contract SimpleNftCollectionV2 with Deployable {
                data: profile.data
            }); 
         
-    }
+    } */
 
     // ===== Mint on profile callback ==== //
     receive(msg: ProfileData) {

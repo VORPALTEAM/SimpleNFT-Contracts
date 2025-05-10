@@ -2,7 +2,7 @@ import { Blockchain, SandboxContract, TreasuryContract } from '@ton/sandbox';
 import { Address, beginCell, toNano } from '@ton/core';
 import { SimpleNftMaster } from '../wrappers/SimpleNftMaster';
 import '@ton/test-utils';
-import { SimpleNftCollection } from '../wrappers/SimpleNftCollection';
+import { SimpleNftCollectionV2 } from '../build/SimpleNftMaster/tact_SimpleNftCollectionV2';
 import { NftItem } from '../wrappers/SimpleNftItem';
 
 describe('SimpleNftMaster', () => {
@@ -58,14 +58,18 @@ describe('SimpleNftMaster', () => {
                 nft_individual_content_url: nftContent,
                 royalty_params: myRoyaltyParams,
                 mint_limit: 0n,
-                nft_price: toNano("1156")
+                nft_price: toNano("1156"),
+                mint_time_limit: 0n, 
+                is_sbt: 0n, 
+                enable_whitelist: false, 
+                enable_blacklist: false
             }
         );
         
         console.log("Found collection address: ", collectionAddress);
 
         if (collectionAddress) {
-            const collectionContract = blockchain.openContract(SimpleNftCollection.fromAddress(collectionAddress));
+            const collectionContract = blockchain.openContract(SimpleNftCollectionV2.fromAddress(collectionAddress));
 
             console.log("Collection data: ", await collectionContract.getGetCollectionData());
             console.log("Master after data: ", await simpleNftMaster.getGetNextCollectionIndex());

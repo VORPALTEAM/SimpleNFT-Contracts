@@ -1,5 +1,4 @@
 import { Address, beginCell, toNano } from '@ton/core';
-import { SimpleNftCollection } from '../wrappers/SimpleNftCollection';
 import { NetworkProvider, sleep } from '@ton/blueprint';
 import { NftItem } from '../wrappers/SimpleNftItem';
 import { SimpleNftMaster } from '../wrappers/SimpleNftMaster';
@@ -8,8 +7,10 @@ import { waitForDeploy } from '../utils/deploy';
 
 export async function run(provider: NetworkProvider, args: string[]) {
     const ui = provider.ui();
-    const owner = Address.parse("EQASOROUZS1xSjdKIZXzoR59-LRqs48Kc6ZXjTYNKAdQzu7r");
+    const owner = Address.parse("EQBXOYPdhtLTaY3UJ8Cb69k7-nDFMPrR3S9lhWuk3uscesyQ"); // EQASOROUZS1xSjdKIZXzoR59-LRqs48Kc6ZXjTYNKAdQzu7r
     const OFFCHAIN_CONTENT_PREFIX = 0x01;
+    const collectionCreationPrice = '0.25';
+    const collectionItemPrice = '0.3';
     const string_first = "https://gateway.pinata.cloud/ipfs/QmXpAW9kqXApy6reNfUHXKBuDwVCCq8UG3tkokCgnKSxMd";
     const string_content = "https://gateway.pinata.cloud/ipfs/QmZYpbA6kKXWk85AEEXu8VGgLVE2L166mJzcuFYBokQpXZ";
     const content = beginCell().storeInt(OFFCHAIN_CONTENT_PREFIX, 8).storeBuffer(Buffer.from(string_first)).endCell();
@@ -37,7 +38,7 @@ export async function run(provider: NetworkProvider, args: string[]) {
     const firstCollectionCreate = await newMaster.send(
         provider.sender(),
         {
-            value: toNano('0.3'),
+            value: toNano(collectionCreationPrice),
         },
         {
             $$type: "CollectionMintParams",
@@ -49,7 +50,7 @@ export async function run(provider: NetworkProvider, args: string[]) {
             mint_limit: 100n,
             mint_time_limit: 1900000000n,
             is_sbt: 1n,
-            nft_price: toNano("0.5"),
+            nft_price: toNano(collectionItemPrice),
             enable_blacklist: true,
             enable_whitelist: false
         }
@@ -75,13 +76,30 @@ export async function run(provider: NetworkProvider, args: string[]) {
     const dataInfo = await simpleNftCollection.getGetCollectionData();
     let nftAddress = await simpleNftCollection.getGetNftAddressByIndex(2n);
 
-    await simpleNftCollection.send(
+    const todoAddress = await simpleNftCollection.getBuyerProfileAddress(owner);
+
+    /* await simpleNftCollection.send(
         provider.sender(),
         {
             value: toNano('0.5'),
         },
-        "Mint"
+        {
+            $$type: "NewTodo",
+            task: "Well_done"
+        }
+    ); */
+
+    console.log("Address to do:", todoAddress)
+
+    await simpleNftCollection.send(
+        provider.sender(),
+        {
+            value: toNano(collectionItemPrice),
+        },
+        "RequestWhitelist" // "Mint" // "RequestWhitelist"
     );
+
+    console.log("Mint info:", provider.sender(), await simpleNftCollection.getBuyerProfileAddress(provider.sender().address || owner))
 
     let dataInfoAfter = await simpleNftCollection.getGetCollectionData();
     let attempt = 1;
