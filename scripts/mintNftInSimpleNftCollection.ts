@@ -1,7 +1,7 @@
 import { Address, toNano } from '@ton/core';
-import { SimpleNftCollection } from '../wrappers/SimpleNftCollection';
 import { NetworkProvider, sleep } from '@ton/blueprint';
 import { NftItem } from '../wrappers/SimpleNftItem';
+import { SimpleNftCollectionV2 } from '../build/SimpleNftMaster/tact_SimpleNftCollectionV2';
 
 export async function run(provider: NetworkProvider, args: string[]) {
     const ui = provider.ui();
@@ -13,7 +13,7 @@ export async function run(provider: NetworkProvider, args: string[]) {
         return;
     }
 
-    const simpleNftCollection = provider.open(SimpleNftCollection.fromAddress(address));
+    const simpleNftCollection = provider.open(SimpleNftCollectionV2.fromAddress(address));
 
     const dataInfo = await simpleNftCollection.getGetCollectionData();
     let nftAddress = await simpleNftCollection.getGetNftAddressByIndex(2n);

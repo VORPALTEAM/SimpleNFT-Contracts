@@ -134,6 +134,7 @@ struct CollectionMasterData {
     mint_time_limit: Int;
     is_sbt: Int;
     index_in_collection: Int;
+    enable_whitelist: Bool;
 }
 
 // ToDos test
@@ -141,9 +142,13 @@ message NewTodo{
     task: String;
 }
 
+message MintTo{
+    owner: Address;
+}
+
 message SetupCollectionData{
     collection_owner: Address?;
-    collection_item_price: Int?;
+    collection_item_price: Int;
 }
 
 message CompleteTodo{

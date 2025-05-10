@@ -52,7 +52,7 @@ export async function run(provider: NetworkProvider, args: string[]) {
             is_sbt: 1n,
             nft_price: toNano(collectionItemPrice),
             enable_blacklist: true,
-            enable_whitelist: false
+            enable_whitelist: true
         }
     );
     if (!nextAddress) {
@@ -91,15 +91,13 @@ export async function run(provider: NetworkProvider, args: string[]) {
 
     console.log("Address to do:", todoAddress)
 
-    await simpleNftCollection.send(
+    /* await simpleNftCollection.send(
         provider.sender(),
         {
             value: toNano(collectionItemPrice),
         },
         "RequestWhitelist" // "Mint" // "RequestWhitelist"
-    );
-
-    console.log("Mint info:", provider.sender(), await simpleNftCollection.getBuyerProfileAddress(provider.sender().address || owner))
+    ); */
 
     let dataInfoAfter = await simpleNftCollection.getGetCollectionData();
     let attempt = 1;
