@@ -78,16 +78,6 @@ export async function run(provider: NetworkProvider, args: string[]) {
 
     const todoAddress = await simpleNftCollection.getBuyerProfileAddress(owner);
 
-    /* await simpleNftCollection.send(
-        provider.sender(),
-        {
-            value: toNano('0.5'),
-        },
-        {
-            $$type: "NewTodo",
-            task: "Well_done"
-        }
-    ); */
 
     console.log("Address to do:", todoAddress)
 

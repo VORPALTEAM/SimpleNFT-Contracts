@@ -1,5 +1,5 @@
 import { NetworkProvider } from "@ton/blueprint";
-import { Address } from "@ton/core";
+import { Address, beginCell } from "@ton/core";
 
 export async function waitForDeploy(
     provider: NetworkProvider,
@@ -18,4 +18,13 @@ export async function waitForDeploy(
     }
     console.warn(`❌ Not deployed after${maxAttempts} times`);
     return false;
+}
+
+export function buildAddressListCell(addresses: Address[]) {
+    const cell = beginCell();
+    cell.storeUint(addresses.length, 8); 
+    for (const address of addresses) {
+        cell.storeAddress(address);
+    }
+    return cell.endCell();
 }

@@ -44,12 +44,6 @@ message CollectionSetupParams {
     enable_blacklist: Bool;
 }
 
-message MassUpdateWhiteList {
-    users: map<Int as uint16, Address>;
-    amount: map<Int as uint16, Int>;
-    whitelist: Bool;
-}
-
 message MassUpdateBlackList {
     users: map<Int as uint16, Address>;
     blacklist: Bool;
@@ -137,13 +131,13 @@ struct CollectionMasterData {
     enable_whitelist: Bool;
 }
 
-// ToDos test
-message NewTodo{
-    task: String;
-}
-
 message MintTo{
     owner: Address;
+}
+
+message MassUpdateWhiteList {
+    addresses: Cell;
+    add: Bool;
 }
 
 message SetupCollectionData{
@@ -159,9 +153,6 @@ message InternalComplete{
     excess: Address;
 }
 
-message NewTodoResponse{
-    seqno: Int as uint256;
-}
 
 message InternalAdd{
     amount: Int as coins;

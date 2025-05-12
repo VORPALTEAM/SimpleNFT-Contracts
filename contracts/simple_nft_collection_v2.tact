@@ -163,6 +163,7 @@ contract SimpleNftCollectionV2 with Deployable {
         data: profile.data
       });  
     }
+    
 
     fun update_black_list(address: Address, add: Bool) {
       let profile = self.get_user_profile_init(address);
@@ -203,6 +204,17 @@ contract SimpleNftCollectionV2 with Deployable {
     receive(msg: UpdateBlackList) {
         require(sender() == self.owner_address, "Not a collection owner");
         self.update_white_list(msg.user, msg.blacklist);
+    }
+
+    receive(msg: MassUpdateWhiteList) {
+        require(sender() == self.owner_address, "Not a collection owner");
+        let slice = msg.addresses.beginParse();
+        let count = slice.loadUint(8); 
+
+        repeat (count) {
+           let address = slice.loadAddress();
+          self.update_white_list(address, msg.add);
+        }
     }
 
     get fun get_master_data(): CollectionMasterData {
