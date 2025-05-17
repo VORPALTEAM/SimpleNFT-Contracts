@@ -67,6 +67,10 @@ contract BuyerProfile with Deployable {
         return self.is_whitelisted;
     }
 
+    get fun user_mint_count(): Int {
+        return self.user_item_count;
+    }
+
 
     // List operations
     receive(msg: AddToWhiteList) {
