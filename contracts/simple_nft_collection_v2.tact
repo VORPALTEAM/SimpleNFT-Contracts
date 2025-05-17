@@ -20,9 +20,9 @@ contract SimpleNftCollectionV2 with Deployable {
     is_setup: Bool;
     is_sbt: Int = 0;
     mint_time_limit: Int = 0;
-    enable_blacklist: Bool = false;
+    enable_profile: Bool = false;
+    user_item_limit: Int = 0;
     enable_whitelist: Bool = false;
-    numTodos: Int as uint256 = 0;
 
     init(
     master_address: Address,
@@ -44,9 +44,10 @@ contract SimpleNftCollectionV2 with Deployable {
         self.individual_content_url = msg.nft_individual_content_url;
         self.is_setup = true;
         self.is_sbt = msg.is_sbt;
+        self.enable_profile = msg.enable_profile;
+        self.user_item_limit = msg.user_item_limit;
         self.mint_time_limit = msg.mint_time_limit;
         self.enable_whitelist = msg.enable_whitelist;
-        self.enable_blacklist = msg.enable_blacklist;
     }
     // Profile
     get fun buyer_profile_address(owner: Address): Address{
@@ -54,12 +55,15 @@ contract SimpleNftCollectionV2 with Deployable {
     }
 
     receive("RequestWhitelist") {
+         require(self.enable_profile == true, "Profile not nessesary for this collection");
          let init: StateInit = initOf BuyerProfile(myAddress(), sender());
          send(SendParameters{
             to: contractAddress(init),
             body: SetupCollectionData{
                 collection_owner: self.owner_address,
-                collection_item_price: self.price
+                collection_item_price: self.price,
+                enable_whitelist: self.enable_whitelist,
+                user_item_limit: self.user_item_limit
             }.toCell(),
             value: ton("0.05"),
             mode: SendIgnoreErrors,
@@ -72,7 +76,7 @@ contract SimpleNftCollectionV2 with Deployable {
     receive("Mint"){
         let ctx: Context = context(); // get sender Info
         require(ctx.value >= self.price, "NFT creation underpriced");
-        require(self.enable_whitelist == false, "Another method for whitelists");
+        require(self.enable_profile == false, "Another method for profiles");
         let msgValue: Int = ctx.value;
         let tonBalanceBeforeMsg: Int = myBalance() - msgValue;
         let storageFee: Int = minTonsForStorage - min(tonBalanceBeforeMsg, minTonsForStorage);

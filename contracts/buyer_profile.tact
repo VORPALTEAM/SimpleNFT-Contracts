@@ -10,8 +10,11 @@ contract BuyerProfile with Deployable {
     is_initialized: Bool = false;
     is_blacklisted: Bool;
     is_whitelisted: Bool;
+    enable_whitelist: Bool = false;
+    user_item_limit: Int = 0;
+    user_item_count: Int = 0;
 
-    init(parent: Address, new_owner: Address) {
+    init (parent: Address, new_owner: Address) {
         self.collection_address = parent;
         self.owner = new_owner;
         self.is_blacklisted = false;
@@ -24,11 +27,18 @@ contract BuyerProfile with Deployable {
         self.collection_owner = msg.collection_owner;
         self.collection_item_price = msg.collection_item_price;
         self.is_initialized = true;
+        self.enable_whitelist = msg.enable_whitelist;
+        self.user_item_limit = msg.user_item_limit
     }
 
     receive("Mint"){
         require(sender() == self.owner, "Profile owner only");
-        require(self.is_whitelisted() == true, "White list required");
+        if (self.enable_whitelist) {
+           require(self.is_whitelisted() == true, "White list required");
+        }
+        if (self.user_item_limit > 0) {
+            require(self.user_item_count < self.user_item_limit, "Mint limit per user reached");
+        }
         let ctx: Context = context();
         require(ctx.value >= self.collection_item_price, "NFT creation underpriced");
         let msgValue: Int = ctx.value;
@@ -44,6 +54,7 @@ contract BuyerProfile with Deployable {
             }.toCell(),
             mode: SendIgnoreErrors
         });
+        self.user_item_count = self.user_item_count + 1;
     }
 
     // Get blacklist status (still not supported)

@@ -40,8 +40,9 @@ message CollectionSetupParams {
     nft_price: Int;
     mint_time_limit: Int;
     is_sbt: Int;
+    enable_profile: Bool;
     enable_whitelist: Bool;
-    enable_blacklist: Bool;
+    user_item_limit: Int;
 }
 
 message MassUpdateBlackList {
@@ -77,8 +78,9 @@ message CollectionMintParams {
     mint_time_limit: Int;
     is_sbt: Int;
     nft_price: Int;
+    enable_profile: Bool;
     enable_whitelist: Bool;
-    enable_blacklist: Bool;
+    user_item_limit: Int;
 }
 
 message ProfileData {
@@ -143,6 +145,8 @@ message MassUpdateWhiteList {
 message SetupCollectionData{
     collection_owner: Address?;
     collection_item_price: Int;
+    user_item_limit: Int;
+    enable_whitelist: Bool;
 }
 
 message CompleteTodo{

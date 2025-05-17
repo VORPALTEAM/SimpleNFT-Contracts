@@ -51,7 +51,8 @@ export async function run(provider: NetworkProvider, args: string[]) {
             mint_time_limit: 1900000000n,
             is_sbt: 1n,
             nft_price: toNano(collectionItemPrice),
-            enable_blacklist: true,
+            enable_profile: true,
+            user_item_limit: 1n,
             enable_whitelist: true
         }
     );

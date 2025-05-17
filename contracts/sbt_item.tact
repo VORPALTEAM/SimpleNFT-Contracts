@@ -8,7 +8,6 @@ contract SbtItem {
 
     owner: Address?;
     individual_content: Cell?;
-    is_sbt: Int = 1;
 
     init(collection_address: Address, item_index: Int){
         require(sender() == collection_address, "not from collection");
@@ -25,7 +24,6 @@ contract SbtItem {
         self.is_initialized = true;
             self.owner = msg.new_owner;
             self.individual_content = msg.custom_payload;
-            // self.is_sbt = msg.is_sbt;
             send(SendParameters{
                 to: msg.response_destination!!,
                 value: msgValue,

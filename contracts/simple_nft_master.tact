@@ -58,7 +58,8 @@ contract SimpleNftMaster with Deployable {
                     mint_time_limit: msg.mint_time_limit,
                     is_sbt: msg.is_sbt,
                     enable_whitelist: msg.enable_whitelist,
-                    enable_blacklist: msg.enable_blacklist
+                    enable_profile: msg.enable_profile,
+                    user_item_limit: msg.user_item_limit
                 }.toCell(),
                 code: collection_init.code,
                 data: collection_init.data
