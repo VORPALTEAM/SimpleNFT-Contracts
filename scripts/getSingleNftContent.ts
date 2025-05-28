@@ -1,5 +1,4 @@
 import { Address, toNano } from '@ton/core';
-import { SimpleNftCollection } from '../build/SimpleNftMaster/tact_SimpleNftCollection';
 import { NetworkProvider, sleep } from '@ton/blueprint';
 import { NftItem } from '../wrappers/SimpleNftItem';
 
