@@ -4,7 +4,7 @@ import "./nft_item.tact";
 import "./sbt_item.tact";
 import "./buyer_profile.tact";
 
-const nftBalanceConst: Int = ton("0.025");
+const nftBalanceConst: Int = ton("0.05");
 
 contract SimpleNftCollectionV2 with Deployable {
 

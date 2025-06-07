@@ -40,7 +40,7 @@ export async function run(provider: NetworkProvider) {
 
     const OFFCHAIN_CONTENT_PREFIX = 0x01;
     const collectionCreationPrice = '0.25';
-    const collectionItemPrice = '0.025';
+    const collectionItemPrice = '0.05';
     const string_first = "https://gateway.pinata.cloud/ipfs/QmXpAW9kqXApy6reNfUHXKBuDwVCCq8UG3tkokCgnKSxMd";
     const string_content = "https://gateway.pinata.cloud/ipfs/QmZYpbA6kKXWk85AEEXu8VGgLVE2L166mJzcuFYBokQpXZ";
     const content = beginCell().storeInt(OFFCHAIN_CONTENT_PREFIX, 8).storeBuffer(Buffer.from(string_first)).endCell();
@@ -77,7 +77,7 @@ export async function run(provider: NetworkProvider) {
             is_sbt: 1n,
             nft_price: toNano(collectionItemPrice),
             enable_profile: true,
-            user_item_limit: 1n,
+            user_item_limit: 2n,
             enable_whitelist: true
         }
     );
