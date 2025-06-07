@@ -8,18 +8,23 @@ export async function run(provider: NetworkProvider) {
     const to = await ui.input('To address:');
 
     const contract = provider.open(SimpleNftMaster.fromAddress(Address.parse(contractAddress)));
-
-    await contract.send(
-        provider.sender(),
-        {
-            value: toNano('0.1'),
-        },
-        {
-            $$type: "Withdraw",
-            to: Address.parse(to)
-        }
-    );
+    console.log('Try to send txn:');
+    try {
+        await contract.send(
+            provider.sender(),
+            {
+                value: toNano('0.2'),
+            },
+            {
+                $$type: 'Withdraw',
+                to: Address.parse(to),
+            },
+        );
+        console.log('Transaction sent successfully');
+    } catch (err) {
+        console.error('Failed to send transaction:', err);
+    }
 
     const newData = await contract.getGetMasterData();
-    console.log("Updated data:", newData);
+    console.log('Updated data:', newData);
 }

@@ -4,7 +4,7 @@ import "./nft_item.tact";
 import "./sbt_item.tact";
 import "./buyer_profile.tact";
 
-const nftBalanceConst: Int = ton("0.1");
+const nftBalanceConst: Int = ton("0.025");
 
 contract SimpleNftCollectionV2 with Deployable {
 
@@ -65,7 +65,7 @@ contract SimpleNftCollectionV2 with Deployable {
                 enable_whitelist: self.enable_whitelist,
                 user_item_limit: self.user_item_limit
             }.toCell(),
-            value: ton("0.05"),
+            value: ton("0.02"),
             mode: SendIgnoreErrors,
             code: init.code,
             data: init.data
@@ -112,10 +112,10 @@ contract SimpleNftCollectionV2 with Deployable {
             require(now() <= self.mint_time_limit, "Mint time limit reached");
         }
         let nft_init: StateInit = self.getNftItemInit(self.next_item_index);
-        let feeValue = msgValue - nftBalanceConst;
+        let feeValue = msgValue  > nftBalanceConst ? msgValue - nftBalanceConst : 0;
         send(SendParameters{
                 to: contractAddress(nft_init), 
-                value: nftBalanceConst, 
+                value: msgValue - feeValue, 
                 bounce: false,
                 mode: SendIgnoreErrors,
                 body: Transfer {
@@ -129,21 +129,23 @@ contract SimpleNftCollectionV2 with Deployable {
                 code: nft_init.code,
                 data: nft_init.data
             });
-
-        send(SendParameters{
+        if (feeValue > 0) {
+          send(SendParameters{
             to: self.master_address,
             value: (feeValue * 3) / 100,
             bounce: false,
             mode: SendIgnoreErrors 
-        });
+          });
 
         // let balanceRemaining: Int = myBalance();
-        send(SendParameters{
+          send(SendParameters{
             to: self.owner_address!!,
             value: (feeValue * 97) / 100, // (feeValue * 97) / 100,
             bounce: false,
             mode: SendIgnoreErrors 
-        }); 
+          });
+        } 
+        
         dump(self.next_item_index); // Reference at: https://tact-by-example.org/03-emit
         self.next_item_index = self.next_item_index + 1;
     }
@@ -161,7 +163,7 @@ contract SimpleNftCollectionV2 with Deployable {
         body: AddToWhiteList {
             add: add
         }.toCell(),
-        value: ton("0.05"),
+        value: ton("0.005"),
         mode: SendIgnoreErrors + SendRemainingValue, 
         code: profile.code,
         data: profile.data
@@ -221,6 +223,19 @@ contract SimpleNftCollectionV2 with Deployable {
         }
     }
 
+    get fun get_master_data_v2(): CollectionMasterDataV2 {
+        return CollectionMasterDataV2{
+            master: self.master_address,
+            mint_limit: self.mint_limit,
+            mint_time_limit: self.mint_time_limit,
+            is_sbt: self.is_sbt,
+            price: self.price,
+            enable_whitelist: self.enable_whitelist,
+            index_in_collection: self.collection_index,
+            user_item_limit: self.user_item_limit
+        }
+    }
+
     get fun get_master_data(): CollectionMasterData {
         return CollectionMasterData{
             master: self.master_address,
@@ -228,7 +243,6 @@ contract SimpleNftCollectionV2 with Deployable {
             mint_time_limit: self.mint_time_limit,
             is_sbt: self.is_sbt,
             price: self.price,
-            enable_whitelist: self.enable_whitelist,
             index_in_collection: self.collection_index
         }
     }

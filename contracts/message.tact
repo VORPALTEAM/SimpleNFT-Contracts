@@ -130,8 +130,28 @@ struct CollectionMasterData {
     mint_time_limit: Int;
     is_sbt: Int;
     index_in_collection: Int;
-    enable_whitelist: Bool;
 }
+
+struct CollectionMasterDataV2 {
+    master: Address;
+    mint_limit: Int;
+    price: Int;
+    mint_time_limit: Int;
+    is_sbt: Int;
+    index_in_collection: Int;
+    enable_whitelist: Bool;
+    user_item_limit: Int;
+}
+
+/* 
+
+            master: self.master_address,
+            mint_limit: self.mint_limit,
+            mint_time_limit: self.mint_time_limit,
+            is_sbt: self.is_sbt,
+            price: self.price,
+            index_in_collection: self.collection_index
+*/
 
 message MintTo{
     owner: Address;

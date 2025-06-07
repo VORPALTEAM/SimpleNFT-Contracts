@@ -16,7 +16,6 @@ struct MasterData {
 }
 
 const masterMinStorage: Int = ton("0.05");
-const minTokenPrice: Int = ton("0.2");
 
 contract SimpleNftMaster with Deployable {
     
@@ -36,7 +35,7 @@ contract SimpleNftMaster with Deployable {
         require(self.next_collection_index >= 0, "non-sequential Collections");
         let ctx: Context = context();
         require(ctx.value >= self.collection_creation_price, "Creation underpriced");
-        require(msg.nft_price >= minTokenPrice, "Token price too low");
+        require(msg.nft_price >= nftBalanceConst, "Token price too low");
         if (msg.mint_time_limit > 0) {
             require(msg.mint_time_limit > now(), "Collection must have time to mint");
         }

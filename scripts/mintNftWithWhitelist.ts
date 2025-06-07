@@ -8,9 +8,7 @@ import { BuyerProfile } from '../build/SimpleNftMaster/tact_BuyerProfile';
 
 export async function run(provider: NetworkProvider, args: string[]) {
     const ui = provider.ui();
-    const OFFCHAIN_CONTENT_PREFIX = 0x01;
-    const string_first = 'https://gateway.pinata.cloud/ipfs/QmXpAW9kqXApy6reNfUHXKBuDwVCCq8UG3tkokCgnKSxMd';
-    const string_content = 'https://gateway.pinata.cloud/ipfs/QmZYpbA6kKXWk85AEEXu8VGgLVE2L166mJzcuFYBokQpXZ';
+
     const collectionAddress = Address.parse(
         args.length > 0 ? args[0] : await ui.input('Collection adddress (V2 or higher):'),
     );
@@ -33,7 +31,7 @@ export async function run(provider: NetworkProvider, args: string[]) {
     await collection.send(
         provider.sender(),
         {
-            value: toNano('0.1'),
+            value: toNano('0.02'),
         },
         'RequestWhitelist', // "Mint" // "RequestWhitelist"
     );
@@ -76,6 +74,10 @@ export async function run(provider: NetworkProvider, args: string[]) {
     await sleep(30000);
     const profileState = await profile.getIsWhitelisted();
     console.log('Is whitelisted:', profileState);
+    if (!profileState) {
+        console.log("White list addition failed, stopping...");
+        return;
+    }
     // Mint nft via profile
     const nextIndex = await collection.getGetNftAddressByIndex(collectionData.next_item_index);
     console.log('Will nft address:', nextIndex);
