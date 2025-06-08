@@ -5,6 +5,7 @@ import "./sbt_item.tact";
 import "./buyer_profile.tact";
 
 const nftBalanceConst: Int = ton("0.05");
+const minPriceNoProfile: Int = ton("0.039");
 
 contract SimpleNftCollectionV2 with Deployable {
 
@@ -112,7 +113,8 @@ contract SimpleNftCollectionV2 with Deployable {
             require(now() <= self.mint_time_limit, "Mint time limit reached");
         }
         let nft_init: StateInit = self.getNftItemInit(self.next_item_index);
-        let feeValue = msgValue  > nftBalanceConst ? msgValue - nftBalanceConst : 0;
+        let noFeeConst = self.enable_profile ? nftBalanceConst : minPriceNoProfile;
+        let feeValue = msgValue  > noFeeConst ? msgValue - noFeeConst : 0;
         send(SendParameters{
                 to: contractAddress(nft_init), 
                 value: msgValue - feeValue, 

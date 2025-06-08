@@ -52,7 +52,7 @@ export async function run(provider: NetworkProvider) {
         ui.write(`Error: Contract at address ${newMaster.address} is not deployed!`);
         return;
     }
-    const nextColIndex = 0n // await simpleNftMaster.getGetNextCollectionIndex();
+    const nextColIndex = await simpleNftMaster.getGetNextCollectionIndex();
     const nextAddress = await simpleNftMaster.getGetCollectionAddressByIndex(nextColIndex)
     console.log("Collection index: ", nextColIndex)
     console.log("Building on index: ", nextAddress)

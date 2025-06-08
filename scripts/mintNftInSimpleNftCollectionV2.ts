@@ -6,7 +6,7 @@ import { SimpleNftCollectionV2 } from '../build/SimpleNftMaster/tact_SimpleNftCo
 export async function run(provider: NetworkProvider, args: string[]) {
     const ui = provider.ui();
 
-    const address = Address.parse(args.length > 0 ? args[0] : await ui.input('SimpleNftUsual address'));
+    const address = Address.parse(args.length > 0 ? args[0] : await ui.input('SimpleNft collection address (V2 with no profile)'));
 
     if (!(await provider.isContractDeployed(address))) {
         ui.write(`Error: Contract at address ${address} is not deployed!`);
@@ -21,7 +21,7 @@ export async function run(provider: NetworkProvider, args: string[]) {
     await simpleNftCollection.send(
         provider.sender(),
         {
-            value: toNano('0.5'),
+            value: toNano('0.039'),
         },
         "Mint"
     );
