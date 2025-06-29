@@ -13,6 +13,11 @@ export async function run(provider: NetworkProvider, args: string[]) {
         args.length > 0 ? args[0] : await ui.input('Collection adddress (V2 or higher):'),
     );
 
+    const isNeedWhitelist = await (async () => {
+        const arg = await ui.input('Add address to whitelist (y / n)?');
+        return arg === 'y';
+    })();
+
     const collection = provider.open(SimpleNftCollectionV2.fromAddress(collectionAddress));
     const user = provider.sender()?.address;
     if (!user) {
@@ -27,7 +32,9 @@ export async function run(provider: NetworkProvider, args: string[]) {
     console.log('Master data:', masterData);
     // Create profile
     const buyerProfile = await collection.getGetBuyerProfileAddress(user);
-    console.log('Profile:', buyerProfile, 'Sending...');
+    console.log('Profile:', buyerProfile);
+    if (isNeedWhitelist) {
+    console.log('Sending...');
     await collection.send(
         provider.sender(),
         {
@@ -42,6 +49,7 @@ export async function run(provider: NetworkProvider, args: string[]) {
         console.log('Not deployed per timeout!');
         return;
     }
+    }
     // Add to white list
     const profile = provider.open(BuyerProfile.fromAddress(buyerProfile));
     /* await collection.send(
@@ -55,21 +63,22 @@ export async function run(provider: NetworkProvider, args: string[]) {
             whitelist: true
         }  
     ); */
+    if (isNeedWhitelist) {
+      const addressesCell = buildAddressListCell([user]);
 
-    const addressesCell = buildAddressListCell([user]);
-
-    // Test mass update
-    await collection.send(
+      // Test mass update
+       await collection.send(
         provider.sender(),
         {
             value: toNano('0.1'),
         },
         {
-            $$type: 'MassUpdateWhiteList', // строго по Tact ABI
+            $$type: 'MassUpdateWhiteList', // strict on Tact ABI
             addresses: addressesCell,
             add: true,
         },
-    );
+      );
+    }
 
     await sleep(30000);
     const profileState = await profile.getIsWhitelisted();

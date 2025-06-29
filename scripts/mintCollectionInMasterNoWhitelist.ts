@@ -11,8 +11,8 @@ export async function run(provider: NetworkProvider, args: string[]) {
     const OFFCHAIN_CONTENT_PREFIX = 0x01;
     const collectionCreationPrice = '0.25';
     const collectionItemPrice = '0.039';
-    const string_first = "https://gateway.pinata.cloud/ipfs/QmXpAW9kqXApy6reNfUHXKBuDwVCCq8UG3tkokCgnKSxMd";
-    const string_content = "https://gateway.pinata.cloud/ipfs/QmZYpbA6kKXWk85AEEXu8VGgLVE2L166mJzcuFYBokQpXZ";
+    const string_first = "https://harlequin-broad-partridge-259.mypinata.cloud/ipfs/QmPMj9zs6kcgzuRU8hoVmJHEpY5oDnY3zfFNwFZLWB2WsD";
+    const string_content = "https://harlequin-broad-partridge-259.mypinata.cloud/ipfs/QmQYU2meGKtWc7M2VtaZc3m6nVEAmUvjkGQ1keQm4J4zDs";
     const content = beginCell().storeInt(OFFCHAIN_CONTENT_PREFIX, 8).storeBuffer(Buffer.from(string_first)).endCell();
     const nftContent = beginCell().storeInt(OFFCHAIN_CONTENT_PREFIX, 8).storeBuffer(Buffer.from(string_content)).endCell();
     const address = Address.parse(args.length > 0 ? args[0] : await ui.input('SimpleNftMaster address'));
@@ -49,7 +49,7 @@ export async function run(provider: NetworkProvider, args: string[]) {
             royalty_params: myRoyaltyParams,
             mint_limit: 100n,
             mint_time_limit: 1900000000n,
-            is_sbt: 1n,
+            is_sbt: 0n,
             nft_price: toNano(collectionItemPrice),
             enable_profile: false,
             user_item_limit: 0n,
