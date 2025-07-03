@@ -6,6 +6,7 @@ import { SimpleNftCollectionV2 } from '../build/SimpleNftMaster/tact_SimpleNftCo
 import { NftItem } from '../wrappers/SimpleNftItem';
 import { makeSnakeAddressCell, readSnakeAddressCell } from '../utils/cell';
 import { BuyerProfile } from '../build/SimpleNftMaster/tact_BuyerProfile';
+import { buildAddressListCell, waitForDeploy } from '../utils/deploy';
 
 describe('SimpleNftMaster', () => {
     let blockchain: Blockchain;
@@ -128,12 +129,14 @@ describe('SimpleNftMaster', () => {
                 },
                 'RequestWhitelist',
             );
+            await new Promise((resolve) => setTimeout(resolve, 100));
         }
 
-        const snakeCell = makeSnakeAddressCell(wallets.map((w) => w.address));
-        console.log('Checking cell:');
-        const read = readSnakeAddressCell(snakeCell);
-        console.log('Read:', read);
+        const snakeCell = buildAddressListCell(wallets.map((w) => w.address)); 
+        // makeSnakeAddressCell(wallets.map((w) => w.address));
+        // console.log('Checking cell:');
+        // const read = readSnakeAddressCell(snakeCell);
+        // console.log('Read:', read);
 
         await collection.send(
             deployer.getSender(),

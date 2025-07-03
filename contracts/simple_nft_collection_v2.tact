@@ -24,6 +24,7 @@ contract SimpleNftCollectionV2 with Deployable {
     enable_profile: Bool = false;
     user_item_limit: Int = 0;
     enable_whitelist: Bool = false;
+    my_nonce: Int = 124; // For build on new address. Delete before mainnet deploy!
 
     init(
     master_address: Address,
@@ -214,25 +215,27 @@ contract SimpleNftCollectionV2 with Deployable {
         self.update_white_list(msg.user, msg.blacklist);
     }
 
+    /* receive(msg: MassUpdateWhiteList) {
+        require(sender() == self.owner_address, "Not a collection owner");
+        let slice = msg.addresses.beginParse();
+        let count = slice.loadUint(8); 
+
+        repeat (count) {
+           let address = slice.loadAddress();
+          self.update_white_list(address, msg.add);
+        }
+    } */
+
     receive(msg: MassUpdateWhiteList) {
         require(sender() == self.owner_address, "Not a collection owner");
+        let slice = msg.addresses.beginParse();
+        let count = slice.loadUint(8); 
 
-    let slice = msg.addresses.beginParse();
-
-      repeat (256) { // ограничим чтобы избежать бесконечных циклов
-        while (slice.bits() >= 267) {
-            let address = slice.loadAddress();
-            self.update_white_list(address, msg.add);
-          }
-
-         if (slice.refs() > 0) {
-            slice = slice.loadRef().beginParse();
-         } else {
-            return;
-         }
-      }
+        repeat (count) {
+           let address = slice.loadAddress();
+          self.update_white_list(address, msg.add);
+        }
     }
-
 
     get fun get_master_data_v2(): CollectionMasterDataV2 {
         return CollectionMasterDataV2{
@@ -306,4 +309,3 @@ contract SimpleNftCollectionV2 with Deployable {
         return self.royalty_params!!;
     }
 }
-

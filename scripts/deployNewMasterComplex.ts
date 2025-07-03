@@ -4,6 +4,7 @@ import { NetworkProvider, sleep } from '@ton/blueprint';
 import { buildAddressListCell, waitForDeploy } from '../utils/deploy';
 import { SimpleNftCollectionV2 } from '../build/SimpleNftMaster/tact_SimpleNftCollectionV2';
 import { BuyerProfile } from '../build/SimpleNftMaster/tact_BuyerProfile';
+import { makeSnakeAddressCell } from '../utils/cell';
 
 export async function run(provider: NetworkProvider) {
     const ui = provider.ui();
@@ -166,7 +167,8 @@ export async function run(provider: NetworkProvider) {
             }  
         ); */
     
-        const addressesCell = buildAddressListCell([owner]);
+        const addressesCell = makeSnakeAddressCell([owner]);
+        // buildAddressListCell([owner]);
     
         // Test mass update
         await simpleNftCollection.send(

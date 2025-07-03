@@ -77,7 +77,7 @@ export async function run(provider: NetworkProvider, args: string[]) {
     const dataInfo = await simpleNftCollection.getGetCollectionData();
     let nftAddress = await simpleNftCollection.getGetNftAddressByIndex(2n);
 
-    const todoAddress = await simpleNftCollection.getBuyerProfileAddress(owner);
+    const todoAddress = await simpleNftCollection.getGetBuyerProfileAddress(owner);
 
 
     console.log("Address to do:", todoAddress)
