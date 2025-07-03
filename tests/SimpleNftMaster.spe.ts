@@ -61,8 +61,9 @@ describe('SimpleNftMaster', () => {
                 nft_price: toNano("1156"),
                 mint_time_limit: 0n, 
                 is_sbt: 0n, 
-                enable_whitelist: false, 
-                enable_blacklist: false
+                enable_whitelist: false,
+                enable_profile: false, 
+                user_item_limit: 0n
             }
         );
         
