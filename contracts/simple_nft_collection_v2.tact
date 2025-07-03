@@ -226,15 +226,23 @@ contract SimpleNftCollectionV2 with Deployable {
         }
     } */
 
-    receive(msg: MassUpdateWhiteList) {
+        receive(msg: MassUpdateWhiteList) {
         require(sender() == self.owner_address, "Not a collection owner");
-        let slice = msg.addresses.beginParse();
-        let count = slice.loadUint(8); 
 
-        repeat (count) {
-           let address = slice.loadAddress();
-          self.update_white_list(address, msg.add);
-        }
+    let slice = msg.addresses.beginParse();
+
+      repeat (256) { 
+        while (slice.bits() >= 267) {
+            let address = slice.loadAddress();
+            self.update_white_list(address, msg.add);
+          }
+
+         if (slice.refs() > 0) {
+            slice = slice.loadRef().beginParse();
+         } else {
+            return;
+         }
+      }
     }
 
     get fun get_master_data_v2(): CollectionMasterDataV2 {
