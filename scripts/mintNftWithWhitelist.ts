@@ -5,6 +5,7 @@ import { SimpleNftMaster } from '../wrappers/SimpleNftMaster';
 import { SimpleNftCollectionV2 } from '../build/SimpleNftMaster/tact_SimpleNftCollectionV2';
 import { buildAddressListCell, waitForDeploy } from '../utils/deploy';
 import { BuyerProfile } from '../build/SimpleNftMaster/tact_BuyerProfile';
+import { makeSnakeAddressCell } from '../utils/cell';
 
 export async function run(provider: NetworkProvider, args: string[]) {
     const ui = provider.ui();
@@ -64,7 +65,7 @@ export async function run(provider: NetworkProvider, args: string[]) {
         }  
     ); */
     if (isNeedWhitelist) {
-      const addressesCell = buildAddressListCell([user]);
+      const addressesCell = makeSnakeAddressCell([user]);
 
       // Test mass update
        await collection.send(

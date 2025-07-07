@@ -226,8 +226,8 @@ contract SimpleNftCollectionV2 with Deployable {
         }
     } */
 
-        receive(msg: MassUpdateWhiteList) {
-        require(sender() == self.owner_address, "Not a collection owner");
+    receive(msg: MassUpdateWhiteList) {
+    require(sender() == self.owner_address, "Not a collection owner");
 
     let slice = msg.addresses.beginParse();
 

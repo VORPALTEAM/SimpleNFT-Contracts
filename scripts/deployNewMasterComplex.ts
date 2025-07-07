@@ -174,7 +174,7 @@ export async function run(provider: NetworkProvider) {
         await simpleNftCollection.send(
             provider.sender(),
             {
-                value: toNano('0.1'),
+                value: toNano('0.5'),
             },
             {
                 $$type: 'MassUpdateWhiteList', // Tact ABI, strict

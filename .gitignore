@@ -15,4 +15,8 @@ dist
 # VIM
 Session.vim
 
+# Wallets for test
+wallets.txt
+wallets.json
+
 .env
