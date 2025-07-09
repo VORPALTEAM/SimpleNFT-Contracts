@@ -33,7 +33,7 @@ export async function run(provider: NetworkProvider, args: string[]) {
        await collection.send(
         provider.sender(),
         {
-            value: toNano('0.5'),
+            value: toNano('1'),
         },
         {
             $$type: 'MassUpdateWhiteList', // strict on Tact ABI

@@ -36,6 +36,24 @@ function hasReference(cell: Cell): boolean {
   return cs.remainingRefs > 0;
 }
 
+
+export function makeSnakeAddressCellPerOne (addresses: Address[]): Cell {
+    let next: Cell | null = null;
+
+    for (let i = addresses.length - 1; i >= 0; i--) {
+        const cell = beginCell();
+        cell.storeAddress(addresses[i]);
+
+        if (next) {
+            cell.storeRef(next);
+        }
+
+        next = cell.endCell();
+    }
+
+    return next ?? beginCell().endCell();
+}
+
 export function readSnakeAddressCell(root: Cell): Address[] {
     console.log("Read started for:", root, "Ref:", hasReference(root))
   const addresses: Address[] = [];

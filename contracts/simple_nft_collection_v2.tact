@@ -6,6 +6,7 @@ import "./buyer_profile.tact";
 
 const nftBalanceConst: Int = ton("0.05");
 const minPriceNoProfile: Int = ton("0.039");
+const whitelistUpdatePrice: Int = ton("0.006");
 
 contract SimpleNftCollectionV2 with Deployable {
 
@@ -166,10 +167,8 @@ contract SimpleNftCollectionV2 with Deployable {
         body: AddToWhiteList {
             add: add
         }.toCell(),
-        value: ton("0.005"),
-        mode: SendIgnoreErrors + SendRemainingValue, 
-        code: profile.code,
-        data: profile.data
+        value: whitelistUpdatePrice,
+        mode: SendIgnoreErrors
       });  
     }
     
@@ -181,10 +180,8 @@ contract SimpleNftCollectionV2 with Deployable {
         body: AddToBlackList {
             add: add
         }.toCell(),
-        value: ton("0.05"),
-        mode: SendIgnoreErrors, //  + SendRemainingValue
-        code: profile.code,
-        data: profile.data
+        value: whitelistUpdatePrice,
+        mode: SendIgnoreErrors
       }); 
     // ... rest of your implementation
     }
@@ -226,23 +223,40 @@ contract SimpleNftCollectionV2 with Deployable {
         }
     } */
 
-    receive(msg: MassUpdateWhiteList) {
-    require(sender() == self.owner_address, "Not a collection owner");
-
-    let slice = msg.addresses.beginParse();
-
-      repeat (256) { 
+    /* 
+      while (true) {
+        // While data enough for new address
         while (slice.bits() >= 267) {
             let address = slice.loadAddress();
             self.update_white_list(address, msg.add);
-          }
+        }
+
+        // Go to next SnakeCell
+        if (slice.refs() > 0) {
+            let next = slice.loadRef();
+            slice = next.beginParse();
+        } else {
+            // No more SnakeCell
+            return;
+        }
+      } 
+    */
+
+    receive(msg: MassUpdateWhiteList) {
+    require(sender() == self.owner_address, "Not a collection owner");
+    let cell = msg.addresses;
+    let slice = cell.beginParse();
+
+      while (true) {
+         let address = slice.loadAddress();
+         self.update_white_list(address, msg.add);
 
          if (slice.refs() > 0) {
-            slice = slice.loadRef().beginParse();
+           slice = slice.loadRef().beginParse();
          } else {
-            return;
-         }
-      }
+           return;
+        }
+      }  
     }
 
     get fun get_master_data_v2(): CollectionMasterDataV2 {
