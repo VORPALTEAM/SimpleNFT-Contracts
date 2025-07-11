@@ -6,7 +6,8 @@ import "./buyer_profile.tact";
 
 const nftBalanceConst: Int = ton("0.05");
 const minPriceNoProfile: Int = ton("0.039");
-const whitelistUpdatePrice: Int = ton("0.006");
+const whitelistUpdatePrice: Int = ton("0.005");
+const massUpdateMasterFee: Int = ton("0.01");
 
 contract SimpleNftCollectionV2 with Deployable {
 
@@ -88,6 +89,16 @@ contract SimpleNftCollectionV2 with Deployable {
         self.mint(ctx.sender, msgValue);
 
         emit(LogEventMintRecord{ minter: sender(), item_id: self.next_item_index, generate_number: nativeRandom() }.toCell());
+    }
+
+    receive(msg: Withdraw) {
+        require(sender() == self.owner_address, "Not from owner");
+        send(SendParameters{
+            to: msg.to,
+            value: myBalance() - masterMinStorage,
+            bounce: false,
+            mode: SendIgnoreErrors
+        });
     }
 
     // Mint with whitelist support
@@ -246,6 +257,13 @@ contract SimpleNftCollectionV2 with Deployable {
     require(sender() == self.owner_address, "Not a collection owner");
     let cell = msg.addresses;
     let slice = cell.beginParse();
+
+    send(SendParameters{
+            to: self.master_address,
+            value: massUpdateMasterFee,
+            bounce: false,
+            mode: SendIgnoreErrors 
+          });
 
       while (true) {
          let address = slice.loadAddress();

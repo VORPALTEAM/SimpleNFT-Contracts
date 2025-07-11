@@ -183,5 +183,20 @@ message InternalAdd{
     origin: Address;
 }
 
+message TransferOwner {
+    new_owner: Address;
+}
+
+message Withdraw {
+    to: Address;
+}
+
+struct MasterData {
+    master: Address;
+    next_collection_index: Int;
+    collection_creation_price: Int;
+}
+
+const masterMinStorage: Int = ton("0.05");
 const minTonsForStorage: Int = ton("0.005");
 const gasConsumption: Int = ton("0.012");

@@ -1,21 +1,6 @@
 import "@stdlib/deploy";
 import "./simple_nft_collection_v2";
-
-message TransferOwner {
-    new_owner: Address;
-}
-
-message Withdraw {
-    to: Address;
-}
-
-struct MasterData {
-    master: Address;
-    next_collection_index: Int;
-    collection_creation_price: Int;
-}
-
-const masterMinStorage: Int = ton("0.05");
+import "./message.tact";
 
 contract SimpleNftMaster with Deployable {
     
