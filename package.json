@@ -15,6 +15,7 @@
         "@ton/ton": "^15.0.0",
         "@types/jest": "^29.5.12",
         "@types/node": "^20.14.10",
+        "@types/node-fetch": "^2.6.12",
         "@types/qs": "^6.9.15",
         "base64url": "^3.0.1",
         "enquirer": "^2.4.1",
@@ -26,6 +27,7 @@
         "typescript": "^5.5.3"
     },
     "dependencies": {
+        "node-fetch": "2",
         "supertoken-sdk": "^0.1.1"
     }
 }
