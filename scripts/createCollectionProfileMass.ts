@@ -11,14 +11,23 @@ import * as path from 'path';
 import fetch from 'node-fetch';
 import { mnemonicToPrivateKey } from '@ton/crypto';
 import { WalletContractV4 } from '@ton/ton';
+import { post } from '../utils/api';
 
 type WalletEntry = {
     address: string;
     mnemonic: string[];
 };
 
+export interface WhitelistRefreshData {
+  collection: string;
+  profiles: string[];
+}
+
+
 export async function run(provider: NetworkProvider, args: string[]) {
     const ui = provider.ui();
+    const passedAddresses: string[] = [];
+    const failedAddresses: string[] = [];
 
     const collectionAddress = Address.parse(
         args.length > 0 ? args[0] : await ui.input('Collection adddress (V2 or higher):'),
@@ -76,14 +85,15 @@ export async function run(provider: NetworkProvider, args: string[]) {
             );
 
             // Ждём деплой профиля
-            const deployed = await waitForDeploy(provider, profile);
+            const deployed = await waitForDeploy(provider, profile, 6);
             if (!deployed) {
                 console.warn('⏱ Timeout waiting for profile deploy:', profile.toString());
+                failedAddresses.push(walletAddr.toString())
             } else {
                 console.log('✅ Profile deployed successfully!');
                 const notifyUrl = `https://websiteonlytest.ru/api/profile/${walletAddr.toString()}/${collectionAddress.toString()}`;
                 console.log('Notifying backend:', notifyUrl);
-
+                passedAddresses.push(walletAddr.toString())
                 try {
                     const response = await fetch(notifyUrl, { method: 'GET' });
                     const text = await response.text();
@@ -94,11 +104,42 @@ export async function run(provider: NetworkProvider, args: string[]) {
             }
 
             // Пауза между запросами
-            await sleep(300);
+            await sleep(100);
         } catch (err) {
             console.error('❌ Error with wallet entry:', err);
         }
     }
+    console.log("Added:", passedAddresses.length, "Failed:", failedAddresses.length);
+    const whitelistPermanently = await ui.input('Add all to whitelist? (y / n)');
+    if (whitelistPermanently === 'y') {
+      const addressesCell = makeSnakeAddressCell(passedAddresses.map(a => Address.parse(a)));
 
+      // Test mass update
+      await collection.send(
+        provider.sender(),
+        {
+            value: toNano('1'),
+        },
+        {
+            $$type: 'MassUpdateWhiteList', // strict on Tact ABI
+            addresses: addressesCell,
+            add: true,
+        },
+      );
+      await sleep(30000);
+      console.log("Requesting a reindex");
+      const notifyUrl = `https://websiteonlytest.ru/api/collection/massupdate`;
+      console.log('Notifying backend:', notifyUrl);
+      const dataToSend: WhitelistRefreshData = {
+        collection: collectionAddress.toString(), 
+        profiles: passedAddresses
+      }
+      try {
+          const response = await post(notifyUrl, dataToSend, "POST");
+          console.log('✅ Notification sent. Response:', response);
+      } catch (notifyErr) {
+          console.warn('⚠️ Failed to notify backend:', notifyErr);
+      }
+    }
     ui.clearActionPrompt();
 }
