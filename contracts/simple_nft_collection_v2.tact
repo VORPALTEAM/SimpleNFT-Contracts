@@ -6,7 +6,7 @@ import "./buyer_profile.tact";
 
 const nftBalanceConst: Int = ton("0.05");
 const minPriceNoProfile: Int = ton("0.039");
-const whitelistUpdatePrice: Int = ton("0.01");
+const whitelistUpdatePrice: Int = ton("0.005");
 const massUpdateMasterFee: Int = ton("0.01");
 
 contract SimpleNftCollectionV2 with Deployable {

@@ -3,6 +3,12 @@ import "./simple_nft_collection_v2";
 import "./message.tact";
 
 contract SimpleNftMaster with Deployable {
+
+    /* 
+      Root contract of SimpleNFT project
+      Powered by SimpleNFT team
+      Code by Yuriy Berland
+    */
     
     owner: Address;
     next_collection_index: Int = 0;
