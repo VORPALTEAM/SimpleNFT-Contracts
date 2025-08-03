@@ -46,6 +46,7 @@ export async function run(provider: NetworkProvider, args: string[]) {
             console.log('Invalid address, skipped');
         }
     }
+
     const collectionAddress = Address.parse(
         args.length > 0 ? args[0] : await ui.input('Collection adddress (V2 or higher):'),
     );

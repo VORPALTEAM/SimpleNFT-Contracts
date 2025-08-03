@@ -6,8 +6,11 @@ contract SimpleNftMaster with Deployable {
 
     /* 
       Root contract of SimpleNFT project
-      Powered by SimpleNFT team
+      Powered by Vorpal team
+      https://github.com/VORPALTEAM
+      
       Code by Yuriy Berland
+      https://github.com/YuriyBum
     */
     
     owner: Address;

@@ -5,14 +5,14 @@ contract BuyerProfile with Deployable {
     
     collection_address: Address;
     collection_owner: Address?;
-    collection_item_price: Int = 0;
+    collection_item_price: Int as uint64 = 0;
     owner: Address;
     is_initialized: Bool = false;
     is_blacklisted: Bool;
     is_whitelisted: Bool;
     enable_whitelist: Bool = false;
-    user_item_limit: Int = 0;
-    user_item_count: Int = 0;
+    user_item_limit: Int as uint8 = 0;
+    user_item_count: Int as uint8 = 0;
 
     init (parent: Address, new_owner: Address) {
         self.collection_address = parent;
