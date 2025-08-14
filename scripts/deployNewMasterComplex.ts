@@ -178,10 +178,9 @@ export async function run(provider: NetworkProvider) {
                 value: toNano('0.5'),
             },
             {
-                $$type: 'MassUpdateWhiteList', // Tact ABI, strict
-                addresses: addressesCell,
-                add: true,
-                spendPerAddress: spendPerWallet
+                $$type: 'UpdateWhiteList', // Tact ABI, strict\
+                user: owner, 
+                whitelist: true
             },
         );
     

@@ -3,7 +3,7 @@ import "./message.tact";
 
 contract SbtItem {
     collection_address: Address;
-    item_index: Int; 
+    item_index: Int as uint32; 
     is_initialized: Bool;
 
     owner: Address?;

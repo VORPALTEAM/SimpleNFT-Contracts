@@ -6,6 +6,7 @@ import { SimpleNftCollectionV2 } from '../build/SimpleNftMaster/tact_SimpleNftCo
 import { buildAddressListCell, waitForDeploy } from '../utils/deploy';
 import { BuyerProfile } from '../build/SimpleNftMaster/tact_BuyerProfile';
 import { makeSnakeAddressCell, makeSnakeAddressCellPerOne } from '../utils/cell';
+import { spendPerWallet } from '../utils/config';
 
 export async function run(provider: NetworkProvider, args: string[]) {
     const ui = provider.ui();
@@ -77,6 +78,7 @@ export async function run(provider: NetworkProvider, args: string[]) {
             $$type: 'MassUpdateWhiteList', // strict on Tact ABI
             addresses: addressesCell,
             add: true,
+            spendPerAddress: spendPerWallet
         },
       );
     }

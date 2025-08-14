@@ -13,20 +13,20 @@ const singleTransactionReserve: Int = ton("0.005");
 
 contract SimpleNftCollectionV2 with Deployable {
 
-    next_item_index: Int = 0;
-    collection_index: Int = 0;
+    next_item_index: Int as uint32 = 0;
+    collection_index: Int as uint32 = 0;
     owner_address: Address?;
     master_address: Address;
     royalty_params: RoyaltyParams?;                      
     collection_content: Cell?;   
     individual_content_url: Cell?;
-    mint_limit: Int = 0;
+    mint_limit: Int as uint32 = 0;
     price: Int = 0;
     is_setup: Bool;
     is_sbt: Int = 0;
-    mint_time_limit: Int = 0;
+    mint_time_limit: Int as uint32 = 0;
     enable_profile: Bool = false;
-    user_item_limit: Int = 0;
+    user_item_limit: Int as uint8 = 0;
     enable_whitelist: Bool = false;
 
     init(
