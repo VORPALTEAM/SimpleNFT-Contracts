@@ -9,6 +9,7 @@ import { makeSnakeAddressCell } from '../utils/cell';
 import * as fs from 'fs';
 import * as path from 'path';
 import { post } from '../utils/api';
+import { spendPerWallet } from '../utils/config';
 
 type WalletEntry = {
     address: string;
@@ -66,6 +67,7 @@ export async function run(provider: NetworkProvider, args: string[]) {
                 $$type: 'MassUpdateWhiteList', // strict on Tact ABI
                 addresses: addressesCell,
                 add: true,
+                spendPerAddress: spendPerWallet
             },
         );
         await sleep(30000);

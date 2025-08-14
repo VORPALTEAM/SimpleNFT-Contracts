@@ -5,6 +5,7 @@ import { buildAddressListCell, waitForDeploy } from '../utils/deploy';
 import { SimpleNftCollectionV2 } from '../build/SimpleNftMaster/tact_SimpleNftCollectionV2';
 import { BuyerProfile } from '../build/SimpleNftMaster/tact_BuyerProfile';
 import { makeSnakeAddressCell, makeSnakeAddressCellPerOne } from '../utils/cell';
+import { spendPerWallet } from '../utils/config';
 
 export async function run(provider: NetworkProvider) {
     const ui = provider.ui();
@@ -41,7 +42,7 @@ export async function run(provider: NetworkProvider) {
 
     const OFFCHAIN_CONTENT_PREFIX = 0x01;
     const collectionCreationPrice = '0.25';
-    const collectionItemPrice = '0.05';
+    const collectionItemPrice = '0.1';
     const string_first = "https://gateway.pinata.cloud/ipfs/QmXpAW9kqXApy6reNfUHXKBuDwVCCq8UG3tkokCgnKSxMd";
     const string_content = "https://gateway.pinata.cloud/ipfs/QmZYpbA6kKXWk85AEEXu8VGgLVE2L166mJzcuFYBokQpXZ";
     const content = beginCell().storeInt(OFFCHAIN_CONTENT_PREFIX, 8).storeBuffer(Buffer.from(string_first)).endCell();
@@ -142,7 +143,7 @@ export async function run(provider: NetworkProvider) {
         await simpleNftCollection.send(
             provider.sender(),
             {
-                value: toNano('0.02'),
+                value: toNano('0.025'),
             },
             'RequestWhitelist', // "Mint" // "RequestWhitelist"
         );
@@ -180,6 +181,7 @@ export async function run(provider: NetworkProvider) {
                 $$type: 'MassUpdateWhiteList', // Tact ABI, strict
                 addresses: addressesCell,
                 add: true,
+                spendPerAddress: spendPerWallet
             },
         );
     

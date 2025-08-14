@@ -8,11 +8,13 @@ const nftBalanceConst: Int = ton("0.05");
 const minPriceNoProfile: Int = ton("0.039");
 const whitelistUpdatePrice: Int = ton("0.006");
 const massUpdateMasterFee: Int = ton("0.01");
+const singleTransactionReserve: Int = ton("0.005");
+
 
 contract SimpleNftCollectionV2 with Deployable {
 
-    next_item_index: Int as uint32 = 0;
-    collection_index: Int as uint32 = 0;
+    next_item_index: Int = 0;
+    collection_index: Int = 0;
     owner_address: Address?;
     master_address: Address;
     royalty_params: RoyaltyParams?;                      
@@ -26,7 +28,6 @@ contract SimpleNftCollectionV2 with Deployable {
     enable_profile: Bool = false;
     user_item_limit: Int = 0;
     enable_whitelist: Bool = false;
-    my_nonce: Int = 124; // For build on new address. Delete before mainnet deploy!
 
     init(
     master_address: Address,
@@ -171,30 +172,16 @@ contract SimpleNftCollectionV2 with Deployable {
       return contractAddress(profile);
     }
 
-    fun update_white_list(address: Address, add: Bool) {
+    fun update_white_list(address: Address, add: Bool, value: Int) {
       let profile = self.get_user_profile_init(address);
       send(SendParameters{
         to: contractAddress(profile),
         body: AddToWhiteList {
             add: add
         }.toCell(),
-        value: whitelistUpdatePrice,
+        value: value,
         mode: SendIgnoreErrors
       });  
-    }
-    
-
-    fun update_black_list(address: Address, add: Bool) {
-      let profile = self.get_user_profile_init(address);
-      send(SendParameters{
-        to: contractAddress(profile),
-        body: AddToBlackList {
-            add: add
-        }.toCell(),
-        value: whitelistUpdatePrice,
-        mode: SendIgnoreErrors
-      }); 
-    // ... rest of your implementation
     }
 
     receive(msg: GetRoyaltyParams) {   
@@ -215,59 +202,18 @@ contract SimpleNftCollectionV2 with Deployable {
 
     receive(msg: UpdateWhiteList) {
         require(sender() == self.owner_address, "Not a collection owner");
-        self.update_white_list(msg.user, msg.whitelist);
+        let ctx: Context = context();
+        self.update_white_list(msg.user, msg.whitelist, ctx.value - singleTransactionReserve);
     }
-
-    receive(msg: UpdateBlackList) {
-        require(sender() == self.owner_address, "Not a collection owner");
-        self.update_white_list(msg.user, msg.blacklist);
-    }
-
-    /* receive(msg: MassUpdateWhiteList) {
-        require(sender() == self.owner_address, "Not a collection owner");
-        let slice = msg.addresses.beginParse();
-        let count = slice.loadUint(8); 
-
-        repeat (count) {
-           let address = slice.loadAddress();
-          self.update_white_list(address, msg.add);
-        }
-    } */
-
-    /* 
-      while (true) {
-        // While data enough for new address
-        while (slice.bits() >= 267) {
-            let address = slice.loadAddress();
-            self.update_white_list(address, msg.add);
-        }
-
-        // Go to next SnakeCell
-        if (slice.refs() > 0) {
-            let next = slice.loadRef();
-            slice = next.beginParse();
-        } else {
-            // No more SnakeCell
-            return;
-        }
-      } 
-    */
 
     receive(msg: MassUpdateWhiteList) {
     require(sender() == self.owner_address, "Not a collection owner");
     let cell = msg.addresses;
     let slice = cell.beginParse();
 
-    send(SendParameters{
-            to: self.master_address,
-            value: massUpdateMasterFee,
-            bounce: false,
-            mode: SendIgnoreErrors 
-          });
-
       while (true) {
          let address = slice.loadAddress();
-         self.update_white_list(address, msg.add);
+         self.update_white_list(address, msg.add, msg.spendPerAddress);
 
          if (slice.refs() > 0) {
            slice = slice.loadRef().beginParse();
@@ -275,6 +221,13 @@ contract SimpleNftCollectionV2 with Deployable {
            return;
         }
       }  
+      
+      send(SendParameters{
+           to: self.master_address,
+           value: massUpdateMasterFee,
+           bounce: false,
+           mode: SendIgnoreErrors 
+        });
     }
 
     get fun get_master_data_v2(): CollectionMasterDataV2 {

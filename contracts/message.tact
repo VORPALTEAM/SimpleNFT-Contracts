@@ -45,23 +45,9 @@ message CollectionSetupParams {
     user_item_limit: Int;
 }
 
-message MassUpdateBlackList {
-    users: map<Int as uint16, Address>;
-    blacklist: Bool;
-}
-
 message UpdateWhiteList {
     user: Address;
     whitelist: Bool;
-}
-
-message UpdateBlackList {
-    user: Address;
-    blacklist: Bool;
-}
-
-message AddToBlackList {
-    add: Bool;
 }
 
 message AddToWhiteList {
@@ -160,6 +146,7 @@ message MintTo{
 message MassUpdateWhiteList {
     addresses: Cell;
     add: Bool;
+    spendPerAddress: Int as uint64;
 }
 
 message SetupCollectionData{

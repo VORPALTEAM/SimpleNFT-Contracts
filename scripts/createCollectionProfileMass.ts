@@ -12,6 +12,7 @@ import fetch from 'node-fetch';
 import { mnemonicToPrivateKey } from '@ton/crypto';
 import { WalletContractV4 } from '@ton/ton';
 import { post } from '../utils/api';
+import { spendPerWallet } from '../utils/config';
 
 type WalletEntry = {
     address: string;
@@ -22,7 +23,6 @@ export interface WhitelistRefreshData {
   collection: string;
   profiles: string[];
 }
-
 
 export async function run(provider: NetworkProvider, args: string[]) {
     const ui = provider.ui();
@@ -85,7 +85,7 @@ export async function run(provider: NetworkProvider, args: string[]) {
             );
 
             // Ждём деплой профиля
-            const deployed = await waitForDeploy(provider, profile, 6);
+            const deployed = await waitForDeploy(provider, profile, 9);
             if (!deployed) {
                 console.warn('⏱ Timeout waiting for profile deploy:', profile.toString());
                 failedAddresses.push(walletAddr.toString())
@@ -124,6 +124,7 @@ export async function run(provider: NetworkProvider, args: string[]) {
             $$type: 'MassUpdateWhiteList', // strict on Tact ABI
             addresses: addressesCell,
             add: true,
+            spendPerAddress: spendPerWallet
         },
       );
       await sleep(30000);
