@@ -6,7 +6,7 @@ import "./buyer_profile.tact";
 
 const nftBalanceConst: Int = ton("0.05");
 const minPriceNoProfile: Int = ton("0.039");
-const whitelistUpdatePrice: Int = ton("0.006");
+const whitelistUpdatePrice: Int = ton("0.009");
 const massUpdateMasterFee: Int = ton("0.01");
 const singleTransactionReserve: Int = ton("0.005");
 
@@ -203,7 +203,7 @@ contract SimpleNftCollectionV2 with Deployable {
     receive(msg: UpdateWhiteList) {
         require(sender() == self.owner_address, "Not a collection owner");
         let ctx: Context = context();
-        self.update_white_list(msg.user, msg.whitelist, ctx.value - singleTransactionReserve);
+        self.update_white_list(msg.user, msg.whitelist, whitelistUpdatePrice); // ctx.value - singleTransactionReserve
     }
 
     receive(msg: MassUpdateWhiteList) {
