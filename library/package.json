@@ -1,0 +1,56 @@
+{
+  "name": "@simplenft/api",
+  "version": "0.1.0",
+  "description": "SimpleNFT contracts SDK",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist/index.js",
+    "dist/index.d.ts",
+    "dist/content.js",
+    "dist/content.d.ts",
+    "dist/types.js",
+    "dist/types.d.ts",
+    "dist/api.js",
+    "dist/api.d.ts",
+    "dist/backend-service.js",
+    "dist/backend-service.d.ts",
+    "dist/backend-types.js",
+    "dist/backend-types.d.ts",
+    "dist/contracts",
+    "src",
+    "contracts",
+    "blueprint.config.ts",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@ton/core": "0.57.0",
+    "@ton/crypto": "3.3.0",
+    "@ton/ton": "15.0.0"
+  },
+  "devDependencies": {
+    "@ton/blueprint": "0.22.0",
+    "typescript": "5.5.3"
+  },
+  "keywords": [
+    "ton",
+    "nft",
+    "simplenft"
+  ],
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": "Yuriy Berland"
+}
